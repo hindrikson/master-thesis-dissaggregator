@@ -23,4 +23,4 @@ Here a table of the unique regional_id keys over time:
 `data/raw/regional/ags_lk_changes/landkreise_2023.csv`: Describes the latest state of the 'Landkreise'. The last change to this list happend in 2021.
 final ags_lk/ regional_id/ NUTS-3 list downloaded from: 
 https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GVAuszugJ/31122023_Auszug_GV.html
-This file also provodes a translation of the regional_ids to the NUTS-3 codes.
+This file also provides a translation of the regional_ids to the NUTS-3 codes.

@@ -1,3 +1,5 @@
+## This repository is a fork of https://github.com/florian-baumann1k5/master-thesis-dissaggregator
+
 # DemandRegio Disaggregator
 
 The DamendRegio project aims to disaggregate the final energy consumption of the sectors:
@@ -29,7 +31,7 @@ The Disaggregator for the industry and CTS sector follows a top down bottom up a
 1. Consumption data is loaded from the raw data folder
 2. In the consumption pipeline the consumption is disaggregated on a level of industry sectors and regional_ids
 3. The disaggregated consumption is then used to disaggregate it on a level of applications
-4. The yearly cosnumption by economic sector, applciation and regional id is then used to disaggregate it on a level of temporal resolution
+4. The yearly consumption by economic sector, applciation and regional id is then used to disaggregate it on a level of temporal resolution
 5. To predict future consumption the effects in the src/data_processing/effects.py are used.
 6. To model the fuel switch the src/data_pipelines/pipe_heat.py is used.
 

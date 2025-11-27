@@ -1,17 +1,20 @@
-import pandas as pd
 import os
 from collections import defaultdict
 
+import pandas as pd
 
 from src import logger
-from src.utils.utils import fix_region_id
 from src.configs.config_loader import load_config
-from src.data_access.api_reader import get_historical_employees, get_future_employees
+from src.configs.mappings import wz_dict
+from src.data_access.api_reader import get_future_employees, get_historical_employees
 from src.data_access.local_reader import load_activity_driver_employees
 from src.data_processing.normalization import normalize_region_ids_columns
-from src.configs.mappings import wz_dict
+from src.utils.utils import fix_region_id
 
-def get_historical_employees_by_industry_sector_and_regional_id(year, force_preprocessing=False):
+
+def get_historical_employees_by_industry_sector_and_regional_id(
+    year, force_preprocessing=False
+):
     """
     This function returns a dataframe with the number of employees by industry code and regional code.
     Normalization to 400 regions is done in the normalization.py file.
@@ -23,19 +26,20 @@ def get_historical_employees_by_industry_sector_and_regional_id(year, force_prep
     Args:
         year: The year for which to fetch data
         force_preprocessing: Whether to force preprocessing of the data
-        
+
     Returns:
         A dataframe with the number of employees by industry code and regional code
-    
-    
-    """
 
+
+    """
 
     # 1. Validate year
     if year < 2000 or year > 2018:
         raise ValueError(f"No historical employee data available for year {year}")
     elif year >= 2000 and year <= 2008:
-        logger.info(f"No historical employee data available for year {year}, using 2008 instead")
+        logger.info(
+            f"No historical employee data available for year {year}, using 2008 instead"
+        )
         year = 2008
 
     # 2. Load config
@@ -60,7 +64,7 @@ def get_historical_employees_by_industry_sector_and_regional_id(year, force_prep
 
     # Fix region IDs
     df["id_region"] = df["id_region"].apply(fix_region_id)
-    
+
     # remove negative industry codes
     df = df[df["internal_id[1]"] >= 0]
     """
@@ -74,33 +78,31 @@ def get_historical_employees_by_industry_sector_and_regional_id(year, force_prep
     """
 
     # Pivot the dataframe
-    pivoted_df = df.pivot(
-        index="internal_id[1]",
-        columns="id_region",
-        values="value"
-    )
+    pivoted_df = df.pivot(index="internal_id[1]", columns="id_region", values="value")
     """
     88 rows x 401 columns
     """
     pivoted_df.index.name = "industry_sector"
 
     # Optional: Fill missing values with 0
-    #pivoted_df = pivoted_df.fillna(0)
+    # pivoted_df = pivoted_df.fillna(0)
 
     # Normalize region IDs
     pivoted_df = normalize_region_ids_columns(
         df=pivoted_df,
-        dataset_year=2018 # is the year of the dataset 401 columns = between 2016 and 2020
-        )
+        dataset_year=2018,  # is the year of the dataset 401 columns = between 2016 and 2020
+    )
     """
     88 rows x 400 columns
     """
 
-    ## Validity check: 
+    ## Validity check:
     # the sum().sum() must be between 20mio and 80mio
     if pivoted_df.sum().sum() < 20000000 or pivoted_df.sum().sum() > 80000000:
-        raise ValueError(f"Validity check failed: Number of employees: {pivoted_df.sum().sum()}. Must be between 20mio and 80mio")
-    
+        raise ValueError(
+            f"Validity check failed: Number of employees: {pivoted_df.sum().sum()}. Must be between 20mio and 80mio"
+        )
+
     ## Save to CSV
     os.makedirs(processed_dir, exist_ok=True)
     pivoted_df.to_csv(preprocessed_file_path)
@@ -109,7 +111,9 @@ def get_historical_employees_by_industry_sector_and_regional_id(year, force_prep
     return pivoted_df
 
 
-def get_future_employees_by_industry_sector_and_regional_id(year, force_preprocessing=False):
+def get_future_employees_by_industry_sector_and_regional_id(
+    year, force_preprocessing=False
+):
     """
     This function returns a dataframe with the number of employees by industry code and regional code.
     Normalization to 400 regions is done in the normalization.py file.
@@ -121,21 +125,25 @@ def get_future_employees_by_industry_sector_and_regional_id(year, force_preproce
     Args:
         year: The year for which to fetch data must be 2018-2050
         force_preprocessing: Whether to force preprocessing of the data
-        
+
     Returns:
         A dataframe with the number of employees by industry code and regional code
-    
-    
+
+
     """
 
     # 1. Validate year
     year_requested = year
     if year < 2018 or year > 2050:
-        raise ValueError(f"No future employee data available for year {year}. Must be between 2018 and 2050. Below 2018 data is provided by get_historical_employees_by_industry_sector_and_regional_id")
+        raise ValueError(
+            f"No future employee data available for year {year}. Must be between 2018 and 2050. Below 2018 data is provided by get_historical_employees_by_industry_sector_and_regional_id"
+        )
     elif year >= 2030:
         # using 2030 as this is the year of the activity drivers
-        logger.info(f"No future employee data available for year {year}, using 2030 instead")
-        year = 2030 # 2030 is the last year for which data is available
+        logger.info(
+            f"No future employee data available for year {year}, using 2030 instead"
+        )
+        year = 2030  # 2030 is the last year for which data is available
 
     # 2. Load config
     config = load_config("base_config.yaml")
@@ -156,13 +164,9 @@ def get_future_employees_by_industry_sector_and_regional_id(year, force_preproce
 
     # Fix region IDs
     df["id_region"] = df["id_region"].apply(fix_region_id)
-    
+
     # Pivot the dataframe
-    pivoted_df = df.pivot(
-        index="internal_id[0]",
-        columns="id_region",
-        values="value"
-    )
+    pivoted_df = df.pivot(index="internal_id[0]", columns="id_region", values="value")
     pivoted_df.index.name = "industry_sector"
     """
     88 rows x 401 columns
@@ -170,7 +174,7 @@ def get_future_employees_by_industry_sector_and_regional_id(year, force_preproce
 
     pivoted_df = normalize_region_ids_columns(
         df=pivoted_df,
-        dataset_year=2018 # is the year of the dataset 401 columns = between 2016 and 2020
+        dataset_year=2018,  # is the year of the dataset 401 columns = between 2016 and 2020
     )
     """
     88 rows x 400 columns
@@ -183,11 +187,12 @@ def get_future_employees_by_industry_sector_and_regional_id(year, force_preproce
         # multiply each column by its corresponding scaling factor (from the normalized projection for the specified year).
         pivoted_df = (pivoted_df.T.multiply(emp_total.loc[year_requested])).T
 
-    ## Validity check: 
+    ## Validity check:
     # the sum().sum() must be between 20mio and 80mio
     if pivoted_df.sum().sum() < 20000000 or pivoted_df.sum().sum() > 80000000:
-        raise ValueError(f"Validity check failed: Number of employees: {pivoted_df.sum().sum()}. Must be between 20mio and 80mio")
-
+        raise ValueError(
+            f"Validity check failed: Number of employees: {pivoted_df.sum().sum()}. Must be between 20mio and 80mio"
+        )
 
     # Save to CSV
     os.makedirs(processed_dir, exist_ok=True)
@@ -208,18 +213,19 @@ def get_employees_per_industry_sector_groups_and_regional_ids(year):
 
     Args:
         year: 2000-2050
-        
+
     Returns:
         A dataframe with the number of employees by industry code REGIONS and regional code
         -> 400 rows (regions) x 48 columns (industry sectors)
-    
+
     """
 
     # 1. Validate year: must be between 2000 and 2050
     if year < 2000 or year > 2050:
-        raise ValueError(f"No employee data available for year {year}. Must be between 2000 and 2050.")
-    
-   
+        raise ValueError(
+            f"No employee data available for year {year}. Must be between 2000 and 2050."
+        )
+
     # 2. select the correct fucntion
     if year >= 2000 and year <= 2018:
         df_emp = get_historical_employees_by_industry_sector_and_regional_id(year)
@@ -235,14 +241,20 @@ def get_employees_per_industry_sector_groups_and_regional_ids(year):
     group_to_industry_sector = defaultdict(list)
     for industry_sector, group in mapping.items():
         group_to_industry_sector[group].append(industry_sector)
-    
+
     # For each grouped label, sum the corresponding columns
     df_employees_grouped = pd.DataFrame(index=df_employees.index)
     for group_label, industry_sector_list in group_to_industry_sector.items():
         # Filter only those industry_sector codes that actually exist in df_emp
-        valid_industry_sector = [industry_sector for industry_sector in industry_sector_list if industry_sector in df_emp.index]
+        valid_industry_sector = [
+            industry_sector
+            for industry_sector in industry_sector_list
+            if industry_sector in df_emp.index
+        ]
         if valid_industry_sector:
-            df_employees_grouped[group_label] = df_employees[valid_industry_sector].sum(axis=1)
+            df_employees_grouped[group_label] = df_employees[valid_industry_sector].sum(
+                axis=1
+            )
         else:
             df_employees_grouped[group_label] = 0.0  # or np.nan if you prefer
 
@@ -258,18 +270,19 @@ def get_employees_per_industry_sector_and_regional_ids(year):
 
     Args:
         year: 2000-2050
-        
+
     Returns:
         A dataframe with the number of employees by industry code and regional code
         -> 88 rows (industry sectors) x 400 columns (regions)
-    
+
     """
 
     # 1. Validate year: must be between 2000 and 2050
     if year < 2000 or year > 2050:
-        raise ValueError(f"No employee data available for year {year}. Must be between 2000 and 2050.")
-    
-   
+        raise ValueError(
+            f"No employee data available for year {year}. Must be between 2000 and 2050."
+        )
+
     # 2. select the correct fucntion
     if year >= 2000 and year <= 2018:
         df_emp = get_historical_employees_by_industry_sector_and_regional_id(year)
@@ -279,3 +292,4 @@ def get_employees_per_industry_sector_and_regional_ids(year):
     # name the index
     df_emp.index.name = "industry_sector"
     return df_emp
+
