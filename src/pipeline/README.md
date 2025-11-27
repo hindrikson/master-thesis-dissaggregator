@@ -23,7 +23,7 @@ Contains the functionalities to disaggregate the consumption on a level of tempo
 
 
 ## Heat: `src/pipeline/pipe_heat.py`:
-Contains the functionalities to transfere gas and petrol consumption to hydrogen and electricity consumption (fuel switch).
+Contains the functionalities to transfer gas and petrol consumption to hydrogen and electricity consumption (fuel switch).
 `sector_fuel_switch_fom_gas_petrol()`: Calculates the share of gas and petrol that is needed to be switched to hydrogen or electricity.
 `temporal_elec_load_from_fuel_switch()`: Calculates the electricity demand that is needed to replace the gas or petrol consumption.
 `temporal_hydrogen_load_from_fuel_switch()`: Calculates the hydrogen demand that is needed to replace the gas consumption.

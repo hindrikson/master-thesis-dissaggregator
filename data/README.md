@@ -2,7 +2,7 @@
 Datasources and explanations about the input data
 
 ### Application Dissaggregation Factors:
-Self generated application shares per industry sector based on literature from AGEB and VDI.
+Self generated application shares per industry sector based on literature from AGEB (Arbeitsgemeinschaft Energiebilanzen) and VDI (Verein Deutscher Ingenieure).
 See the underlying papers of this code for the methodology. 
 - data/raw/dimensionless/decomposition_factors_process_heat.csv
 - data/raw/dimensionless/decompositionfactors_petrol_general_2023.csv
@@ -15,13 +15,13 @@ See the underlying papers of this code for the methodology.
     - Downloaded on 21.03.2025 from Genisis DB https://www-genesis.destatis.de/datenbank/online/statistic/85121/table/85121-0002/.
     - Selected the years 2000 to 2020 (newest data availible)
     - downloaded as flat csv without "Qualitätskennzeichen einbeziehen"
-    - Energieverbrauch pro WZ in TJ
+    - Energieverbrauch pro WZ in TJ (Terajoule)
 - energiebilanzen for calculating the self consumption
 
 
 ### data/raw/electric_vehicles
 - charging profiles for temporal disaggregation
-- KBA dataset as input for the KBA approach (historical) and for the regional disaggregation (UGR approach)
+- KBA (Kraftfahrt-Bundesamt) dataset as input for the KBA approach (historical) and for the regional disaggregation (UGR approach)
 - shares of commercial EVs by regional_id
 - average km driven by EVs 
 - the projected number of EVs for the KBA_2 approach
@@ -29,16 +29,16 @@ See the underlying papers of this code for the methodology.
 
 
 ### data/raw/heat
-- COP parameters for Heat Pump
+- COP (Coefficient of Performance) parameters for Heat Pump
 - Fuel switch keys of how the gas and petrol consumption is switched to electricity and hydrogen
 
 
 ### data/raw/regional
-- changes in the AGS definition over the time
+- changes in the AGS (Amtlicher Gemeindeschlüssel) definition over the time
 - shapefile of the NUTS-3 regions
 
 ### data/raw/temporal
-- Tempoerature data
+- Temperature data
 - Gas load profiles 
 - Electricity load profiles
 - Activity drivers (Mengeneffekt) for economic sectors

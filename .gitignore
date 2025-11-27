@@ -187,3 +187,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Auxiliarty or test files
+test.py
+01_pipelines.py
