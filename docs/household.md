@@ -43,6 +43,7 @@ The intervals specify different household sizes. To get all the different househ
 
 To emulate the same behaviour as table 2, for each table fetched for a specific internal_id, one needs to sum all the values.
 Then create a dataframe with 6 rows, one with the some of each internal_id. 
+
 **Problem** is that the final values are much higher than the values returned by the table 13. It could be that the table 13 is returning the values alredy in MGh or GWh instead of KWh.
 
 The code below return a table in the following format, which is similar to what the code does, but we here do not convert the id_region to NUTS3.
