@@ -90,5 +90,8 @@ df_2_pivot = df_2_pivot / 1e3
 print(df_2_pivot.head())
 ```
 
+## Continue where the option scale_by_pop is True
+Scales by the number of households in each region. But the code above already returns the consumption per household size category per region.
+
 
 
