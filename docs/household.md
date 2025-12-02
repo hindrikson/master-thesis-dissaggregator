@@ -35,7 +35,6 @@ The table then looks like this:
 |------------|----------------|-----------|------|-------------|--------------|
 | 55         | 4              | 16055000  | 2015 | [5, 0]      | 1.010070e+07 |
 | 55         | 4              | 16056000  | 2015 | [1, 0]      | 5.848985e+06 |
-| ...        | ...            | ...       | ...  | ...         | ...          |
 
 The intervals specify different household sizes. To get all the different households per region in one table either:
 - **DO NOT** specify a internal ID.
@@ -48,7 +47,6 @@ Then create a dataframe with 6 rows, one with the some of each internal_id.
 
 The code below return a table in the following format, which is similar to what the code does, but we here do not convert the id_region to NUTS3.
 
-|------------------------------------------------------------------------------------------
 | hh_size   | 1             | 2             | 3             | 4            |
 |-----------|---------------|---------------|---------------|--------------|
 | id_region |               |               |               |              |
@@ -58,7 +56,6 @@ The code below return a table in the following format, which is similar to what 
 | 1003000   | 97054.032124  | 95356.901099  | 139368.337659 | 30336.402315 |
 | 1004000   | 24363.297943  | 34077.322383  | 51558.870259  | 17216.851353 |
 | 1051000   | 36899.554847  | 52130.750475  | 93218.887541  | 32756.462776 |
-|------------------------------------------------------------------------------------------
 
 
 
