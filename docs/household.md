@@ -2,7 +2,7 @@
 
 Here we describe how the consumption of private households is disaggreagted spatially and temporally.
 
-## Spatial Disaggreagation
+# Spatial Disaggreagation
 The spatial disaggreagation can be done by two different approaches:
 - Top-Down: uses population data to distribute consumption based on the number of inhabitants in each area.
 - Bottom-Up: uses the number of households to distribute consumption based on the number of households in each area.
@@ -23,13 +23,35 @@ Is there a table that returns the total electricity consumption of private house
 ## Only Bottom-Up available
 So far the only option available is using disagg_household_power(by="households"), which uses the Bottom-Up approach.
 
-The original table is **table 13 "Stromverbrauch nach Haushaltsgröße"** which returns 6 rows for each household size category, for the specified year.
+In this approach first the disaggregator fetches to total of energy consumption per household, in the whole germany.
+It fetches table **table 13 "Stromverbrauch nach Haushaltsgröße"** for it. The table has 6 rows 0 (1 person), 1 (2 persons), 3 (4 persons) 4, (5 persons), 5 (6 persons).
+This table, it seems, return not the total consumption for the whole germany according to the houshold type, but rather
+a typical anual consumption for each type.
 
-**Problem**: It has only data for 2015, and the format is different.
+Then the function fetches **table 14 "Anzahl Haushalte nach Haushaltsgröße, 1990..2030"**.
+This table after a bit of processing returns the number of households types per region.
+Then this table is then multiplied by by the results of the table before (13). 
+There is an option to scale these values by the population size.
+(**Note** The method here is not exactly clear to me. 
+It seems like the values returned by the table 13 is the total anual energy consumption for one only household type, like a typical energy consumption ammount for a specific household size.
+This way it does make sense then to multiply this value to the number of each households types in each region to get the total energy consumption.
+This way each region the energy consumption for each kind of household type.
 
+The final dataframe looks like this:
+| hh_size | 1          | 2          | ... | 5         | 6            |
+|---------|------------|------------|-----|-----------|--------------|
+| DE111   | 287072.910 | 277795.914 | ... | 52705.848 | 25970.568 |
+| DE112   | 116986.836 | 166203.012 | ... | 40849.848 | 17220.840 |
+
+
+**Problems**:
+- table 13 only has data for 2015
+- table 14 only has data for 2011
+
+**Solution**:
 **Table 55 "Stromverbrauch der Haushalte nach Haushaltsgroesse, 1990..2060"**. It returns a dataframe with the total consumption of every region
 in **kWh/a** according to an internal_id. The internal ids are: 1, 2, 3, 4, 5 (**NOTE** The description in opendata is not completely right)
-1=total, 2=1-person households, 3=2-person households, 4=3-person households, 5>=4-person households 
+1=total, 2=1-person households, 3=2-person households, 4=3-person households, 5>=4-person or more households 
 The table then looks like this:
 | id_spatial | id_region_type | id_region | year | internal_id | value        |
 |------------|----------------|-----------|------|-------------|--------------|
@@ -90,8 +112,76 @@ df_2_pivot = df_2_pivot / 1e3
 print(df_2_pivot.head())
 ```
 
-## Continue where the option scale_by_pop is True
-Scales by the number of households in each region. But the code above already returns the consumption per household size category per region.
+# Temporal Disaggregation
+For the temporal disaggregation the function *temporal.make_zve_load_profiles()* is used.
+This function gets the total electricity consumption based on households types, exactly as descripted above.
+
+I then creates percentages by dividing each entry by the sum of all the region consumption accorss households types.
+
+The function then calls zve_percentages_applications(). It returns the local table called "percentages_applications.csv", which looks like this:
+| Application |    1    |    2    |    3    |    4    |     5     |
+|-------------|---------|---------|---------|---------|-----------|
+| Light       | 0.101   | 0.091   | 0.088   | 0.095   | 0.104133  |
+| Cooking     | 0.079   | 0.103   | 0.092   | 0.093   | 0.084681  |
+| Dishwashing | 0.025   | 0.044   | 0.053   | 0.061   | 0.062319  |
+| Washing     | 0.039   | 0.042   | 0.048   | 0.052   | 0.055956  |
+| Tumbler     | 0.025   | 0.047   | 0.067   | 0.082   | 0.088637  |
+| Hotwater    | 0.140   | 0.132   | 0.122   | 0.109   | 0.106637  |
+| Office      | 0.154   | 0.129   | 0.125   | 0.122   | 0.120549  |
+| TV_Audio    | 0.129   | 0.126   | 0.128   | 0.114   | 0.107593  |
+| Other       | 0.072   | 0.067   | 0.069   | 0.068   | 0.077770  |
+| Fridge      | 0.150   | 0.121   | 0.101   | 0.091   | 0.079363  |
+| Circulation | 0.062   | 0.053   | 0.060   | 0.064   | 0.062407  |
+| Freezer     | 0.024   | 0.045   | 0.047   | 0.049   | 0.049956  |
+
+According to the DemandRegio report, this table represents the percentage of electricity consumption according to the household type.
+
+The function zve_application_profiles() loads the local table "application_profiles.csv", which looks like this:
+
+| HH_size | Day | Season | Application | 93       | 94       | 95       |
+|---------|-----|--------|-------------|----------|----------|----------|
+| 5       | 3   | 1      | ...         | 0.013386 | 0.009107 | 0.005975 |
+| 5       | 3   | 1      | ...         | 0.003093 | 0.002843 | 0.004099 |
+| 5       | 3   | 2      | ...         | 0.006692 | 0.004214 | 0.002661 |
+| 5       | 3   | 2      | ...         | 0.000000 | 0.000000 | 0.000000 |
+
+The column Application has application numbers from 1-9. There are 96 (0 - 95) intervals showing for a household type, how much in percent does a certain application consumes 
+in a specific 15 interval of a day (of a specific season). I guess there are just 9 because fridge, circulation and freezer work all the time, so they are excluded from the calculation. 
+
+Next the function zve_percentages_baseload() is called, which loads a local table called "percentages_baseload.csv". This table looks like this:
+
+| Application |   1   |   2   |   3   |   4   |   5   |
+|-------------|-------|-------|-------|-------|-------|
+| Light       | 0.01  | 0.01  | 0.01  | 0.01  | 0.01  |
+| Cooking     | 0.01  | 0.01  | 0.01  | 0.01  | 0.01  |
+| Dishwashing | 0.01  | 0.01  | 0.01  | 0.01  | 0.01  |
+| Washing     | 0.01  | 0.01  | 0.01  | 0.01  | 0.01  |
+| Tumbler     | 0.01  | 0.01  | 0.01  | 0.01  | 0.01  |
+| Hotwater    | 0.20  | 0.20  | 0.20  | 0.20  | 0.20  |
+| Office      | 0.50  | 0.50  | 0.50  | 0.50  | 0.50  |
+| TV_Audio    | 0.10  | 0.10  | 0.10  | 0.10  | 0.10  |
+| Other       | 0.25  | 0.25  | 0.25  | 0.25  | 0.25  |
+| Fridge      | 1.00  | 1.00  | 1.00  | 1.00  | 1.00  |
+| Circulation | 1.00  | 1.00  | 1.00  | 1.00  | 1.00  |
+| Freezer     | 1.00  | 1.00  | 1.00  | 1.00  | 1.00  |
+
+This table indicates what fraction of each appliance's load is constant "baseload" vs. activity-dependent (e.g., fridges are 100% baseload, lighting is only 1% baseload)
+
+Then in the function database_shapes_gisco() the coordinates for every region in germany are fetched.
+
+**Note** information like the number of days for each season, or how many days there are for february, is based on the year 2012.
+Also the case for the function probability_light_needed.
+
+The main loop starts for every region:
+- The function probability_light_needed calculates the light probability on the latitute and longitude of the region
+
+
+
+
+
+
+
+
 
 
 
