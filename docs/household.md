@@ -172,9 +172,31 @@ Then in the function database_shapes_gisco() the coordinates for every region in
 **Note** information like the number of days for each season, or how many days there are for february, is based on the year 2012.
 Also the case for the function probability_light_needed.
 
-The main loop starts for every region:
-- The function probability_light_needed calculates the light probability on the latitute and longitude of the region
+The function uses 9 time slices combining 3 day types (Weekday, Saturday, Sunday) with 3 seasons (Winter, Transition, Summer). For example, "WD_Win" means weekday in winter, which represents 103 days in 2012.
 
+**The main loop starts for every region:** (The explanation below is taken from ClaudeAI)
+For each German region, the function:
+
+- Calculates light probability: Uses latitude/longitude to determine when artificial light is needed based on sunrise/sunset times for each season
+ 
+- Builds activity-based profiles: For the 9 activity-dependent appliances (Light, Cooking, Dishwashing, Washing, Tumbler, Hotwater, Office, TV_Audio, Other), it:
+
+- Takes the activity profiles from the time-use survey
+Multiplies lighting by the probability that it's dark outside
+Combines activity-based load with constant baseload
+Weights by household size distribution in that region
+
+
+- Adds baseload appliances: The last 3 appliances (Fridge, Circulation, Freezer) run constantly, so their load is distributed evenly across all time steps
+
+- Creating Annual Time Series
+The function converts the 9 representative day profiles into a full 8760-hour year by:
+    - Mapping each day to its day type (weekday/Saturday/Sunday) and season based on month 
+    - Looking up the corresponding profile and hour
+    - Normalizing to create distribution keys that sum to 1.0
+
+- Output
+The function returns a DataFrame with hourly load profiles for the entire year for each region, saved as a CSV file. These profiles represent the typical electricity demand pattern, accounting for behavioral differences across household sizes, appliance usage patterns, and natural light availability.
 
 
 
