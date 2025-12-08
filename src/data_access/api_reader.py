@@ -173,3 +173,46 @@ def get_temperature_outside_hourly(
         raise
 
     return df
+
+
+def get_power_consumption_by_HH_size(
+    year: int, spatial_id: int = 55, use_cache: bool = True
+) -> pd.DataFrame:
+    """
+    Get electricity consumption data by household size.
+
+    spatial_id = 55 -> "Stromverbrauch der Haushalte nach Haushaltsgroesse, 1990..2060"
+    NOTE: The original table was the table 13, but this only has data for 2013.
+
+
+    API:
+        internal_id = 1: for all household sizes
+        year = year
+        value = electricity consumption in kWh/a
+
+    Args:
+        year: The year for which to fetch data
+        spatial_id: The spatial ID to use (default: 55)
+
+    Returns:
+        DataFrame containing energy consumption data. Columns:
+        id_region       = regional code ( not normalized)
+        year            = year
+        internal_id[0]  = branch code
+        value           = employees
+    """
+    # validate Input
+    if 1990 > year > 2060:
+        raise ValueError(f"No households' power consumption for year {year}")
+
+    # building the query
+    query = f"demandregio/demandregio_spatial?id_spatial={spatial_id}&year={year}"
+    logger.info(f"Fetching households' power consumption data for year {year}")
+
+    try:
+        df = get_openffe_data(query, use_cache=use_cache).apply(literal_converter)
+    except OpenFFEApiError as e:
+        logger.error(f"No data available for year {year}: {str(e)}")
+        raise
+
+    return df
