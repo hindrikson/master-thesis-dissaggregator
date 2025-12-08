@@ -8,11 +8,12 @@ to load and process data from various sources. We break down this function below
 - get_consumption_data_historical_and_future()
     * get_ugr_data_ranges()
         - Loads the GENESIS file (data/raw/dimensionless/ugr_2000to2020.csv)
-          with the official national-level starting point for 48 sector ranges,
-          which then later in the main function gets refined and disaggregated
-          into the final 88 sectors × 400 regions output. This data is
+          with the official national-level starting point for 48 sector ranges. This data is
           retrieved from "Verwendung von Energie: Deutschland, Jahre, Produktionsbereiche, Energieträger" under the link below:
           https://www-genesis.destatis.de/datenbank/online/statistic/85121/table/85121-0002
+            - this function calls the *load_raw_ugr_data()* returns the file *"data/raw/dimensionless/ugr_2000to2020.csv"*. This table contains the energy consumption
+              per UGR sector range (48) and year (2000-2020) for power.
+            - function *load_genisis_wz_sector_mapping_file()*, loads the file *"src/configs/genisis_wz_dict.csv"*, has the mapping between UGR sector ranges (48) and WZ2008 sectors (88).
     * apply_activity_driver()
         - If the year is beyond the end year of the UGR data (2020), a projected energy demand is applied to each wz using "activity drivers", in the file 'data/raw/temporal/Activity_drivers.xlsx'. See [activity drivers](tables/activity_drivers.md) for more details.
     * get_employees_per_industry_sector_and_regional_ids()
