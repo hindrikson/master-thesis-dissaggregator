@@ -152,7 +152,7 @@ def get_consumption_data_historical_and_future(year: int) -> pd.DataFrame:
     # gas does not include self generation, power does
     # not single industry_sectors, there are also industry_sector ranges/ Produktionsbereiche
     # Official national energy consumption baseline
-    ugr_data_ranges = get_ugr_data_ranges(year)
+    ugr_data_ranges = get_ugr_data_ranges(year, force_preprocessing=True)
 
     if year_for_projection is not None:
         # apply activity drivers (Mengeneffekt) to project the consumption into the future
