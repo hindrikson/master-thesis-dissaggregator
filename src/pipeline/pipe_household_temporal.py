@@ -1,8 +1,10 @@
 from src.data_processing.households import households_power_consumption  # noqa
+from src.data_processing.households import adjust_by_income  # noqa
+from src import logger
 
 
 def disaggregate_households_power(
-    by, weight_by_income=False, scale_by_pop=False, year=year
+        by: str, year: int,  weight_by_income: bool =False, scale_by_pop: bool =False
 ):
     """
     Spatial disaggregation of elc. power in [GWh/a] by key (weighted by income)
@@ -24,9 +26,6 @@ def disaggregate_households_power(
     pd.DataFrame or pd.Series
     """
     # bottom up by using the number of househods per household size
-    df = households_power_consumption(year=year)
-
-    if weight_by_income:
-        df = adjust_by_income(df=df)
+    df = households_power_consumption(year=year, weight_by_income=weight_by_income)
 
     return df

@@ -216,3 +216,45 @@ def get_power_consumption_by_HH_size(
         raise
 
     return df
+
+
+def get_income_per_capita(
+    year: int, spatial_id: int = 45, internal_id: int = 2, use_cache: bool = True
+) -> pd.DataFrame:
+    """
+    Get income per capita data.
+
+    spatial_id = 45 -> "Verfügbares Einkommen"
+
+
+    API:
+        internal_id = 2: 1 is total, 2 is income per capita
+        year = year
+        value = income per capita in Euro
+
+    Args:
+        year: The year for which to fetch data
+        spatial_id: The spatial ID to use (default: 60)
+
+    Returns:
+        DataFrame containing income per capita data. Columns:
+        id_region       = regional code ( not normalized)
+        year            = year
+        internal_id[0]  = branch code
+        value           = income per capita in Euro
+    """
+    # validate Input
+    if 1995 > year > 2021:
+        raise ValueError(f"No income per capita data for year {year}")
+
+    # building the query
+    query = f"demandregio/demandregio_spatial?id_spatial={spatial_id}&year={year}&internal_id_1={internal_id}"
+    logger.info(f"Fetching income per capita data for year {year}")
+
+    try:
+        df = get_openffe_data(query, use_cache=use_cache).apply(literal_converter)
+    except OpenFFEApiError as e:
+        logger.error(f"No data available for year {year}: {str(e)}")
+        raise
+
+    return df

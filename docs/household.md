@@ -63,6 +63,14 @@ The intervals specify different household sizes. To get all the different househ
 - set internal_id=None when using database_get(internal_id=None)
 - interval_id_1=1 returns the total of 2, 3, 4 and 5 summed up.
 
+**NOTE**: until 2017 the the second internal id is always 0. From 2018 onwards the second internal is corresponds to different scnearios:
+1 = moderate births and life expectancy, low migration balance (G2L2W1)
+2 = moderate births, life expectancy and net migration (G2L2W2)
+3 = moderate births and life expectancy, high net migration (G2L2W3)
+
+The function **households_power_consumption** is implemented to process and filter the data for 2018 onwards.
+
+
 To emulate the same behaviour as table 2, for each table fetched for a specific internal_id, one needs to sum all the values.
 Then create a dataframe with 6 rows, one with the some of each internal_id. 
 
@@ -80,6 +88,7 @@ The code below return a table in the following format, which is similar to what 
 | 1051000   | 36899.554847  | 52130.750475  | 93218.887541  | 32756.462776 |
 
 
+The function implemented in 
 
 ```python
 df_2 = data.database_get(
