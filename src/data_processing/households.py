@@ -60,7 +60,7 @@ def households_power_consumption(
     # divide all values in df_2_pivot by 1e3 to convert from KWh to MWh
     df = df / 1e3
 
-    if weith_by_income:
+    if weight_by_income:
         logger.warning(
             "Income per capita is only available up to 2016. Adjusting households' power consumption by income per capita."
         )
