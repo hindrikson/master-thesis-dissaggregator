@@ -97,4 +97,7 @@ def temporal_disaggregation_households_slp(
         DF = DF.drop(columns=["16056"])
         print("Merged Eisenach (16056) into Wartburgkreis (16063)")
 
+    # Convert columns to integer type to match with industry and cts datasets
+    DF.columns = DF.columns.astype(int)
+
     return DF

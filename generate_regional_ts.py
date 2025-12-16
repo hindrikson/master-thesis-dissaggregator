@@ -81,11 +81,11 @@ def main():
 
     try:
         print("Saving files...")
-        df_cts.to_parquet(cts_path, float_format="%.3f")
+        df_cts.to_parquet(cts_path)
         print("CTS file saved successfully.")
-        df_industry.to_parquet(industry_path, float_format="%.3f")
+        df_industry.to_parquet(industry_path)
         print("Industry file saved successfully.")
-        df_households.to_parquet(household_path, float_format="%.3f")
+        df_households.to_parquet(household_path)
         print("Household file saved successfully.")
         print("Files saved successfully.")
     except Exception as e:
