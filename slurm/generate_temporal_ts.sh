@@ -6,7 +6,7 @@
 #SBATCH --gres=gpu:0
 #SBATCH --mem=8G
 #SBATCH -o /mnt/home/rmiranda/all/repos/master-thesis-dissaggregator/slurm/logs/%j-%x.log
-#SBATCH --job-name=demandregio
+#SBATCH --job-name=disag
 #SBATCH --nodelist=gpu3.omnia.cluster
 #SBATCH --partition=h100
  
