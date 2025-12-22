@@ -154,11 +154,9 @@ def get_ugr_data_ranges(year, force_preprocessing=False):
         "petrol[TJ]": "petrol[MWh]",
     }
 
-    # conver from TJ to GWh
+    # WARNING: Here the values are converted from TJ to GWh, not to MWh as the column_mapping suggests
     for col in grouped_data.columns:
-        # WARNING: It seems like the original line was converting the values to GWh instead of MWh
-        # grouped_data[col] = (grouped_data[col] * 1000) / 3.6 # GWh
-        grouped_data[col] = (grouped_data[col] * 1e6) / 3.6  # MWh
+        grouped_data[col] = (grouped_data[col] * 1000) / 3.6
     grouped_data = grouped_data.rename(columns=column_mapping)
 
     # 11. Rename and Reorder Columns

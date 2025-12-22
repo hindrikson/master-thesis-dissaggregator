@@ -1,3 +1,5 @@
+from time import time
+
 import pandas as pd
 
 pd.options.display.max_columns = 50
@@ -9,6 +11,7 @@ year = 2023
 
 
 def main():
+    start = time()
     print("Creating regional time series for year:", year)
 
     print("Disaggregating households...")
@@ -19,7 +22,7 @@ def main():
         energy_carrier="power",
         sector="industry",
         year=year,
-        force_preprocessing=False,
+        force_preprocessing=True,
         float_precision=10,
     )
 
@@ -28,7 +31,7 @@ def main():
         energy_carrier="power",
         sector="cts",
         year=year,
-        force_preprocessing=False,
+        force_preprocessing=True,
         float_precision=10,
     )
 
@@ -66,30 +69,35 @@ def main():
         print(sorted(only_in_households))
         raise ValueError("Regions in df_households and df_industry do not match!")
 
+    format = "pkl"
     cts_path = (
         "/mnt/data/oe215/rhindrikson/el_load/cts"
-        + f"/temporal_disaggregation_power_cts_{year}.parquet"
+        + f"/temporal_disaggregation_power_cts_{year}.{format}"
     )
     industry_path = (
         "/mnt/data/oe215/rhindrikson/el_load/industry"
-        + f"/temporal_disaggregation_power_industry_{year}.parquet"
+        + f"/temporal_disaggregation_power_industry_{year}.{format}"
     )
     household_path = (
         "/mnt/data/oe215/rhindrikson/el_load/households"
-        + f"/temporal_disaggregation_households_power_slp_{year}.parquet"
+        + f"/temporal_disaggregation_households_power_slp_{year}.{format}"
     )
 
     try:
         print("Saving files...")
-        df_cts.to_parquet(cts_path)
+        df_cts.to_pickle(cts_path)
         print("CTS file saved successfully.")
-        df_industry.to_parquet(industry_path)
+        df_industry.to_pickle(industry_path)
         print("Industry file saved successfully.")
-        df_households.to_parquet(household_path)
+        df_households.to_pickle(household_path)
         print("Household file saved successfully.")
         print("Files saved successfully.")
     except Exception as e:
         print("Error saving files:", e)
+
+    end = time()
+    # print time in minutes
+    print("Time taken: {:.2f} minutes".format((end - start) / 60))
 
 
 if __name__ == "__main__":
