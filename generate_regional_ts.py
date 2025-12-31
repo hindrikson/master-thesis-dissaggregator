@@ -7,7 +7,7 @@ pd.options.display.max_columns = 50
 from src.pipeline.pipe_household_temporal import temporal_disaggregation_households_slp
 from src.pipeline.pipe_temporal import disaggregate_temporal
 
-year = 2023
+year = 2025
 
 
 def main():
@@ -69,31 +69,46 @@ def main():
         print(sorted(only_in_households))
         raise ValueError("Regions in df_households and df_industry do not match!")
 
-    format = "pkl"
-    cts_path = (
-        "/mnt/data/oe215/rhindrikson/el_load/cts"
-        + f"/temporal_disaggregation_power_cts_{year}.{format}"
-    )
-    industry_path = (
-        "/mnt/data/oe215/rhindrikson/el_load/industry"
-        + f"/temporal_disaggregation_power_industry_{year}.{format}"
-    )
-    household_path = (
-        "/mnt/data/oe215/rhindrikson/el_load/households"
-        + f"/temporal_disaggregation_households_power_slp_{year}.{format}"
-    )
+    formats = ["pkl", "csv"]
+    for format in formats:
+        cts_path = (
+            "/mnt/data/oe215/rhindrikson/el_load/cts"
+            + f"/temporal_disaggregation_power_cts_{year}.{format}"
+        )
+        industry_path = (
+            "/mnt/data/oe215/rhindrikson/el_load/industry"
+            + f"/temporal_disaggregation_power_industry_{year}.{format}"
+        )
+        household_path = (
+            "/mnt/data/oe215/rhindrikson/el_load/households"
+            + f"/temporal_disaggregation_households_power_slp_{year}.{format}"
+        )
 
-    try:
-        print("Saving files...")
-        df_cts.to_pickle(cts_path)
-        print("CTS file saved successfully.")
-        df_industry.to_pickle(industry_path)
-        print("Industry file saved successfully.")
-        df_households.to_pickle(household_path)
-        print("Household file saved successfully.")
-        print("Files saved successfully.")
-    except Exception as e:
-        print("Error saving files:", e)
+        if format == "csv":
+            try:
+                print("Saving CSV files...")
+                df_cts.to_csv(cts_path)
+                print("CTS file saved successfully.")
+                df_industry.to_csv(industry_path)
+                print("Industry file saved successfully.")
+                df_households.to_csv(household_path)
+                print("Household file saved successfully.")
+                print("Files saved successfully.")
+            except Exception as e:
+                print("Error saving files:", e)
+            continue
+
+        try:
+            print("Saving pickle files...")
+            df_cts.to_pickle(cts_path)
+            print("CTS file saved successfully.")
+            df_industry.to_pickle(industry_path)
+            print("Industry file saved successfully.")
+            df_households.to_pickle(household_path)
+            print("Household file saved successfully.")
+            print("Files saved successfully.")
+        except Exception as e:
+            print("Error saving files:", e)
 
     end = time()
     # print time in minutes
