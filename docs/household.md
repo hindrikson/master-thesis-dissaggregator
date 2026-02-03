@@ -122,6 +122,7 @@ print(df_2_pivot.head())
 ```
 
 # Temporal Disaggregation
+The temporal disaggregation is done based on two appraoches. :
 For the temporal disaggregation the function *temporal.make_zve_load_profiles()* is used.
 This function gets the total electricity consumption based on households types, exactly as descripted above.
 
