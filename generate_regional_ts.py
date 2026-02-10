@@ -7,7 +7,7 @@ pd.options.display.max_columns = 50
 from src.pipeline.pipe_household_temporal import temporal_disaggregation_households_slp
 from src.pipeline.pipe_temporal import disaggregate_temporal
 
-year = 2025
+year = 2024
 
 
 def main():
