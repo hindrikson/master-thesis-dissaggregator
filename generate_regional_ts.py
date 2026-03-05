@@ -7,10 +7,10 @@ pd.options.display.max_columns = 50
 from src.pipeline.pipe_household_temporal import temporal_disaggregation_households_slp
 from src.pipeline.pipe_temporal import disaggregate_temporal
 
-year = 2024
+dir_path = "/mnt/data/oe215/rhindrikson/el_load/old_without_timezone"
 
 
-def main():
+def main(year):
     start = time()
     print("Creating regional time series for year:", year)
 
@@ -72,15 +72,16 @@ def main():
     formats = ["pkl", "csv"]
     for format in formats:
         cts_path = (
-            "/mnt/data/oe215/rhindrikson/el_load/cts"
-            + f"/temporal_disaggregation_power_cts_{year}.{format}"
+            dir_path + "/cts" + f"/temporal_disaggregation_power_cts_{year}.{format}"
         )
         industry_path = (
-            "/mnt/data/oe215/rhindrikson/el_load/industry"
+            dir_path
+            + "/industry"
             + f"/temporal_disaggregation_power_industry_{year}.{format}"
         )
         household_path = (
-            "/mnt/data/oe215/rhindrikson/el_load/households"
+            dir_path
+            + "/households"
             + f"/temporal_disaggregation_households_power_slp_{year}.{format}"
         )
 
@@ -116,4 +117,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    years = [2022, 2023, 2024]
+    for year in years:
+        main(year)
