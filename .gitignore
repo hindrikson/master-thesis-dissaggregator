@@ -10,7 +10,8 @@ data/output/**/*.csv
 zzzz/*
 
 
-# 
+# secret varialbles
+config.toml
 
 
 # Byte-compiled / optimized / DLL files
