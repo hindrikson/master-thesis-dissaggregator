@@ -1,39 +1,62 @@
+import os
 from time import time
 
 import pandas as pd
+import tomllib
 
 pd.options.display.max_columns = 50
+
 
 from src.pipeline.pipe_household_temporal import temporal_disaggregation_households_slp
 from src.pipeline.pipe_temporal import disaggregate_temporal
 
-result_path = "/mnt/data/oe215/rhindrikson/el_load"
+with open("config.toml", "rb") as f:
+    config = tomllib.load(f)
+
+RESULTS_PATH = config["generate_timeseries"]["results_path"]
+
+
+def save_dirs(result_path):
+    # Create directories if they don't exist
+    os.makedirs(os.path.join(result_path, "industry"), exist_ok=True)
+    os.makedirs(os.path.join(result_path, "cts"), exist_ok=True)
+    os.makedirs(os.path.join(result_path, "households"), exist_ok=True)
+
+    ind_path = os.path.join(result_path, "industry")
+    cts_path = os.path.join(result_path, "cts")
+    hh_path = os.path.join(result_path, "households")
+    return ind_path, cts_path, hh_path
 
 
 def main(year):
     start = time()
-    print("Creating regional time series for year:", year)
+    print("\nCreating regional time series for year:", year)
 
-    print("Disaggregating households...")
+    print("\nDisaggregating households...")
     df_households = temporal_disaggregation_households_slp(by="households", year=year)
+    print("Disaggregation of Households completed.")
 
-    print("Disaggregating industry...")
+    print("\nDisaggregating industry...")
     df_industry = disaggregate_temporal(
         energy_carrier="power",
         sector="industry",
         year=year,
         force_preprocessing=True,
         float_precision=10,
+        save_cache=False,
     )
+    print("Disaggregation of Industry completed.")
 
-    print("Disaggregating cts...")
+    print("\nDisaggregating cts...")
     df_cts = disaggregate_temporal(
         energy_carrier="power",
         sector="cts",
         year=year,
         force_preprocessing=True,
         float_precision=10,
+        save_cache=False,
     )
+    print("Disaggregation of CTS completed.\n")
 
     # Extract regions from df_industry (first level of column MultiIndex)
     industry_regions = df_industry.columns.get_level_values(0).unique()
@@ -70,19 +93,15 @@ def main(year):
         raise ValueError("Regions in df_households and df_industry do not match!")
 
     formats = ["pkl", "csv"]
+    ind_dir, cts_dir, hh_dir = save_dirs(RESULTS_PATH)
+
     for format in formats:
-        cts_path = (
-            result_path + "/cts" + f"/temporal_disaggregation_power_cts_{year}.{format}"
-        )
+        cts_path = cts_dir + f"/temporal_disaggregation_power_cts_{year}.{format}"
         industry_path = (
-            result_path
-            + "/industry"
-            + f"/temporal_disaggregation_power_industry_{year}.{format}"
+            ind_dir + f"/temporal_disaggregation_power_industry_{year}.{format}"
         )
         household_path = (
-            result_path
-            + "/households"
-            + f"/temporal_disaggregation_households_power_slp_{year}.{format}"
+            hh_dir + f"/temporal_disaggregation_households_power_slp_{year}.{format}"
         )
 
         if format == "csv":
@@ -117,6 +136,6 @@ def main(year):
 
 
 if __name__ == "__main__":
-    years = [2025]
+    years = [2022, 2023, 2024]
     for year in years:
         main(year)
