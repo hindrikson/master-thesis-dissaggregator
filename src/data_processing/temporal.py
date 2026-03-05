@@ -861,12 +861,7 @@ def get_CTS_power_slp(state, year: int):
 
     tz = get_timezone("DE")
 
-    year_start = pd.Timestamp(str(year), tz="UTC")
-    year_end = pd.Timestamp(str(year + 1), tz="UTC")
-
     idx = make_year_index(year, "15min", tz)
-
-    # idx = pd.date_range(start=str(year), end=str(year + 1), freq="15min")[:-1]
 
     df = (
         pd.DataFrame(data={"Date": idx})
@@ -1005,10 +1000,6 @@ def get_CTS_power_slp(state, year: int):
     df = df.drop(columns=last_strings).set_index("Date")
 
     df = df.tz_convert("UTC")
-
-    idx = pd.date_range(start=str(year), end=str(year + 1), freq="15min")[:-1]
-
-    df.index = idx  # UTC index without timezone info
 
     return df
 
