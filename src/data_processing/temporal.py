@@ -634,15 +634,15 @@ def get_shift_load_profiles_by_state_and_year(
         "S3_WT_SA_SO",
     ]:
         if sp == "S1_WT":
-            # number of 15min intervals that are working hours
-            anzahl_wz = 17 / 48 * len(df[df["workday"]])
-            # number of 15min intervals that are non-working hours
-            anzahl_nwz = (
-                31 / 48 * len(df[df["workday"]])
-                + len(df[df["sunday"]])
-                + len(df[df["saturday"]])
+            mask_wz = (df["workday"]) & (
+                (df["Hour"] >= pd.to_datetime("08:00:00").time())
+                & (df["Hour"] < pd.to_datetime("16:30:00").time())
             )
+            anzahl_wz = mask_wz.sum()
+            anzahl_nwz = len(df) - anzahl_wz
             anteil = 1 / (anzahl_wz + low * anzahl_nwz)
+            # --- set the value of the shift load profile to anteil for all rows
+
             df[sp] = anteil
             # if the day is sunday or saturday set the value to low*anteil
             mask = df["sunday"] | df["saturday"]
@@ -655,14 +655,12 @@ def get_shift_load_profiles_by_state_and_year(
             df.loc[mask, sp] = low * anteil
 
         elif sp == "S1_WT_SA":
-            anzahl_wz = 17 / 48 * len(df[df["workday"]]) + 17 / 48 * len(
-                df[df["saturday"]]
+            mask_wz = ((df["workday"]) | (df["saturday"])) & (
+                (df["Hour"] >= pd.to_datetime("08:00:00").time())
+                & (df["Hour"] < pd.to_datetime("16:30:00").time())
             )
-            anzahl_nwz = (
-                31 / 48 * len(df[df["workday"]])
-                + len(df[df["sunday"]])
-                + 31 / 48 * len(df[df["saturday"]])
-            )
+            anzahl_wz = mask_wz.sum()
+            anzahl_nwz = len(df) - anzahl_wz
             anteil = 1 / (anzahl_wz + low * anzahl_nwz)
             df[sp] = anteil
             mask = df["sunday"]
@@ -679,24 +677,11 @@ def get_shift_load_profiles_by_state_and_year(
             df.loc[mask, sp] = low * anteil
 
         elif sp == "S1_WT_SA_SO":
-            anzahl_wz = (
-                17
-                / 48
-                * (
-                    len(df[df["workday"]])
-                    + len(df[df["sunday"]])
-                    + len(df[df["saturday"]])
-                )
+            mask_wz = (df["Hour"] >= pd.to_datetime("08:00:00").time()) & (
+                df["Hour"] < pd.to_datetime("16:30:00").time()
             )
-            anzahl_nwz = (
-                31
-                / 48
-                * (
-                    len(df[df["workday"]])
-                    + len(df[df["sunday"]])
-                    + len(df[df["saturday"]])
-                )
-            )
+            anzahl_wz = mask_wz.sum()
+            anzahl_nwz = len(df) - anzahl_wz
             anteil = 1 / (anzahl_wz + low * anzahl_nwz)
             df[sp] = anteil
             mask = (df["Hour"] < pd.to_datetime("08:00:00").time()) | (
@@ -705,12 +690,12 @@ def get_shift_load_profiles_by_state_and_year(
             df.loc[mask, sp] = low * anteil
 
         elif sp == "S2_WT":
-            anzahl_wz = 17 / 24 * len(df[df["workday"]])
-            anzahl_nwz = (
-                7 / 24 * len(df[df["workday"]])
-                + len(df[df["sunday"]])
-                + len(df[df["saturday"]])
+            mask_wz = (df["workday"]) & (
+                (df["Hour"] >= pd.to_datetime("06:00:00").time())
+                & (df["Hour"] < pd.to_datetime("23:00:00").time())
             )
+            anzahl_wz = mask_wz.sum()
+            anzahl_nwz = len(df) - anzahl_wz
             anteil = 1 / (anzahl_wz + low * anzahl_nwz)
             df[sp] = anteil
             mask = df["sunday"] | df["saturday"]
@@ -722,12 +707,12 @@ def get_shift_load_profiles_by_state_and_year(
             df.loc[mask, sp] = low * anteil
 
         elif sp == "S2_WT_SA":
-            anzahl_wz = 17 / 24 * (len(df[df["workday"]]) + len(df[df["saturday"]]))
-            anzahl_nwz = (
-                7 / 24 * len(df[df["workday"]])
-                + len(df[df["sunday"]])
-                + 7 / 24 * len(df[df["saturday"]])
+            mask_wz = ((df["workday"]) | (df["saturday"])) & (
+                (df["Hour"] >= pd.to_datetime("06:00:00").time())
+                & (df["Hour"] < pd.to_datetime("23:00:00").time())
             )
+            anzahl_wz = mask_wz.sum()
+            anzahl_nwz = len(df) - anzahl_wz
             anteil = 1 / (anzahl_wz + low * anzahl_nwz)
             df[sp] = anteil
             mask = df["sunday"]
@@ -739,24 +724,11 @@ def get_shift_load_profiles_by_state_and_year(
             df.loc[mask, sp] = low * anteil
 
         elif sp == "S2_WT_SA_SO":
-            anzahl_wz = (
-                17
-                / 24
-                * (
-                    len(df[df["workday"]])
-                    + len(df[df["saturday"]])
-                    + len(df[df["sunday"]])
-                )
+            mask_wz = (df["Hour"] >= pd.to_datetime("06:00:00").time()) & (
+                df["Hour"] < pd.to_datetime("23:00:00").time()
             )
-            anzahl_nwz = (
-                7
-                / 24
-                * (
-                    len(df[df["workday"]])
-                    + len(df[df["sunday"]])
-                    + len(df[df["saturday"]])
-                )
-            )
+            anzahl_wz = mask_wz.sum()
+            anzahl_nwz = len(df) - anzahl_wz
             anteil = 1 / (anzahl_wz + low * anzahl_nwz)
             df[sp] = anteil
             mask = (df["Hour"] < pd.to_datetime("06:00:00").time()) | (
@@ -767,6 +739,7 @@ def get_shift_load_profiles_by_state_and_year(
         elif sp == "S3_WT_SA_SO":
             anteil = 1 / periods
             df[sp] = anteil
+            df[sp] = df[sp] / df[sp].sum()
 
         elif sp == "S3_WT":
             anzahl_wz = len(df[df["workday"]])
@@ -775,6 +748,7 @@ def get_shift_load_profiles_by_state_and_year(
             df[sp] = anteil
             mask = df["sunday"] | df["saturday"]
             df.loc[mask, sp] = low * anteil
+            df[sp] = df[sp] / df[sp].sum()
 
         elif sp == "S3_WT_SA":
             anzahl_wz = len(df[df["workday"]]) + len(df[df["saturday"]])
@@ -783,6 +757,7 @@ def get_shift_load_profiles_by_state_and_year(
             df[sp] = anteil
             mask = df["sunday"]
             df.loc[mask, sp] = low * anteil
+            df[sp] = df[sp] / df[sp].sum()
 
     df = df[
         [
@@ -800,28 +775,50 @@ def get_shift_load_profiles_by_state_and_year(
     ].set_index("Date")
     return df
 
-def get_timezone(alpha2code):
 
+def get_timezone(alpha2code):
     """
-      getting timezone of country in Europe
+    getting timezone of country in Europe
     """
 
     timezonemap = {
-
-        'AT': 'Europe/Berlin', 'BE': 'Europe/Berlin', 'BG': 'Europe/Sofia', 'BA' : 'Europe/Sarajevo', 'CH': 'Europe/Zurich', 'CY': 'Europe/Sofia', 
-        
-        'CZ': 'Europe/Sofia', 'DE': 'Europe/Berlin',
-
-        'DK': 'Europe/Berlin', 'EE': 'Europe/Sofia', 'GB': 'Europe/London', 'GR': 'Europe/Sofia', 'ES': 'Europe/Berlin', 'FI': 'Europe/Sofia', 
-        
-        'FR': 'Europe/Berlin', 'HR': 'Europe/Berlin', 'HU': 'Europe/Berlin', 'IE': 'Europe/London', 'IS': 'Atlantic/Reykjavik', 'IT': 'Europe/Berlin', 'LT': 'Europe/Sofia', 
-        
-        'LU': 'Europe/Berlin', 'LV': 'Europe/Sofia', 'ME': 'Europe/Podgorica', 'MK': 'Europe/Skopje', 'MT': 'Europe/Sofia', 'NL': 'Europe/Berlin', 'NO': 'Europe/Oslo', 'PL': 'Europe/Berlin', 'PT': 'Europe/London', 
-        
-        'RO': 'Europe/Berlin', 'RS': 'Europe/Belgrade', 'SE': 'Europe/Berlin', 'SI': 'Europe/Berlin', 'SK': 'Europe/Berlin', 'UK': 'Europe/London'
-
+        "AT": "Europe/Berlin",
+        "BE": "Europe/Berlin",
+        "BG": "Europe/Sofia",
+        "BA": "Europe/Sarajevo",
+        "CH": "Europe/Zurich",
+        "CY": "Europe/Sofia",
+        "CZ": "Europe/Sofia",
+        "DE": "Europe/Berlin",
+        "DK": "Europe/Berlin",
+        "EE": "Europe/Sofia",
+        "GB": "Europe/London",
+        "GR": "Europe/Sofia",
+        "ES": "Europe/Berlin",
+        "FI": "Europe/Sofia",
+        "FR": "Europe/Berlin",
+        "HR": "Europe/Berlin",
+        "HU": "Europe/Berlin",
+        "IE": "Europe/London",
+        "IS": "Atlantic/Reykjavik",
+        "IT": "Europe/Berlin",
+        "LT": "Europe/Sofia",
+        "LU": "Europe/Berlin",
+        "LV": "Europe/Sofia",
+        "ME": "Europe/Podgorica",
+        "MK": "Europe/Skopje",
+        "MT": "Europe/Sofia",
+        "NL": "Europe/Berlin",
+        "NO": "Europe/Oslo",
+        "PL": "Europe/Berlin",
+        "PT": "Europe/London",
+        "RO": "Europe/Berlin",
+        "RS": "Europe/Belgrade",
+        "SE": "Europe/Berlin",
+        "SI": "Europe/Berlin",
+        "SK": "Europe/Berlin",
+        "UK": "Europe/London",
     }
-
 
     return timezonemap.get(alpha2code)
 
@@ -830,10 +827,7 @@ def make_year_index(year: int, freq: str, tz):
     year_start = pd.Timestamp(str(year), tz="UTC")
     year_end = pd.Timestamp(str(year + 1), tz="UTC")
 
-    return (
-        pd.date_range(start=year_start, end=year_end, freq=freq)[:-1]
-        .tz_convert(tz)
-    )
+    return pd.date_range(start=year_start, end=year_end, freq=freq)[:-1].tz_convert(tz)
 
 
 def get_CTS_power_slp(state, year: int):
@@ -864,7 +858,6 @@ def get_CTS_power_slp(state, year: int):
         v_filled = v.infer_objects(copy=False).fillna(0.0)
         v_filled = v_filled.infer_objects(copy=False)
         return v_filled[Tag_Zeit]
-    
 
     tz = get_timezone("DE")
 
@@ -873,8 +866,7 @@ def get_CTS_power_slp(state, year: int):
 
     idx = make_year_index(year, "15min", tz)
 
-
-    #idx = pd.date_range(start=str(year), end=str(year + 1), freq="15min")[:-1]
+    # idx = pd.date_range(start=str(year), end=str(year + 1), freq="15min")[:-1]
 
     df = (
         pd.DataFrame(data={"Date": idx})
@@ -941,13 +933,15 @@ def get_CTS_power_slp(state, year: int):
             "SU_UEZ",
             "WD_UEZ",
         ]
-        
+
         # using only the lines with hours and values
         df_SLP = df_load[2:98].reset_index(drop=True)
 
         # as the times in the slp table have to be interpreted as 15 min steps, giving the end of the 15 min, but we always use the start of the 15 min step in our time series, we have to shift the time values by one line, so that the value for 00:15 gets the time 00:00, the value for 00:30 gets the time 00:15 and so on. The value for 00:00 gets the time 23:45.
-        df_SLP.loc[0:len(df_SLP)-1,'Hour'] = list(df_SLP.loc[[len(df_SLP)-1] + list(range(0, len(df_SLP)-1)), 'Hour'])
-        
+        df_SLP.loc[0 : len(df_SLP) - 1, "Hour"] = list(
+            df_SLP.loc[[len(df_SLP) - 1] + list(range(0, len(df_SLP) - 1)), "Hour"]
+        )
+
         df_SLP = df_SLP.reset_index()[
             [
                 "Hour",
@@ -986,34 +980,37 @@ def get_CTS_power_slp(state, year: int):
         last_strings.append(Last)
         df[Last] = Summe
 
-        # for the household profile, we apply the dynamisation function Ft, 
-        # which is a function of the day of the year, 
-        # to account for the seasonal variation in household loads. 
+        # for the household profile, we apply the dynamisation function Ft,
+        # which is a function of the day of the year,
+        # to account for the seasonal variation in household loads.
         # The function Ft is given by the formula:
-        # Ft = -3.92e-10 * dofy^4 + 3.2e-7 * dofy^3 - 7.02e-5 * dofy^2 + 2.1e-3 * dofy + 1.24, 
+        # Ft = -3.92e-10 * dofy^4 + 3.2e-7 * dofy^3 - 7.02e-5 * dofy^2 + 2.1e-3 * dofy + 1.24,
         # where dofy is the day of the year.
-        if profile == 'H0':
-            dofy = df['DayOfYear']
+        if profile == "H0":
+            dofy = df["DayOfYear"]
             dofy = dofy.astype(float)
-            Ft = -3.92e-10 * dofy**4 + 3.2e-7 * dofy**3 - 7.02e-5 * dofy**2 + 2.1e-3 * dofy + 1.24
-            df[Last] = Summe*Ft
-
-
+            Ft = (
+                -3.92e-10 * dofy**4
+                + 3.2e-7 * dofy**3
+                - 7.02e-5 * dofy**2
+                + 2.1e-3 * dofy
+                + 1.24
+            )
+            df[Last] = Summe * Ft
 
         total = sum(df[Last])
         df_normiert = df[Last] / total
         df[profile] = df_normiert
 
-
     df = df.drop(columns=last_strings).set_index("Date")
 
-    df = df.tz_convert('UTC')
+    df = df.tz_convert("UTC")
 
     idx = pd.date_range(start=str(year), end=str(year + 1), freq="15min")[:-1]
-    
-    df.index = idx # UTC index without timezone info
 
-    return df 
+    df.index = idx  # UTC index without timezone info
+
+    return df
 
 
 def get_shift_load_profiles_by_year(
