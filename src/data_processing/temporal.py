@@ -611,9 +611,14 @@ def get_shift_load_profiles_by_state_and_year(
         raise ValueError(f"Invalid state: {state}")
 
     # 1. Create datetime index for the full year in 15-minute steps
-    idx = pd.date_range(start=f"{year}-01-01", end=f"{year + 1}-01-01", freq="15min")[
-        :-1
-    ]  # Build DataFrame and extract features using .dt accessors (faster + cleaner)
+    # Create empty 15min-index'ed DataFrame for target year
+    tz = get_timezone("DE")  # or alpha2code mapping
+
+    idx = make_year_index(year, "15min", tz)
+
+    # idx = pd.date_range(start=f"{year}-01-01", end=f"{year + 1}-01-01", freq="15min")[
+    #     :-1
+    # ]  # Build DataFrame and extract features using .dt accessors (faster + cleaner)
     df = pd.DataFrame({"Date": idx})
     df["Day"] = df["Date"].dt.date
     df["Hour"] = df["Date"].dt.time
@@ -656,6 +661,15 @@ def get_shift_load_profiles_by_state_and_year(
         "S3_WT_SA_SO",
     ]:
         if sp == "S1_WT":
+            # number of 15min intervals that are working hours
+            # anzahl_wz = 17 / 48 * len(df[df["workday"]])
+            # # number of 15min intervals that are non-working hours
+            # anzahl_nwz = (
+            #     31 / 48 * len(df[df["workday"]])
+            #     + len(df[df["sunday"]])
+            #     + len(df[df["saturday"]])
+            # )
+            # Second option
             mask_wz = (df["workday"]) & (
                 (df["Hour"] >= pd.to_datetime("08:00:00").time())
                 & (df["Hour"] < pd.to_datetime("16:30:00").time())
@@ -795,6 +809,9 @@ def get_shift_load_profiles_by_state_and_year(
             "S3_WT_SA_SO",
         ]
     ].set_index("Date")
+
+    df = df.tz_convert("UTC")
+
     return df
 
 
