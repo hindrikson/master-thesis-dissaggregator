@@ -1,12 +1,14 @@
 from src.data_processing.households import households_power_consumption  # noqa
 from src.data_processing.households import adjust_by_income  # noqa
-from src.data_processing.temporal import get_CTS_power_slp  # noqa
+from src.data_processing.temporal import (
+    get_CTS_power_slp,
+    make_year_index,
+)  # noqa
 from src.configs.mappings import federal_state_dict
-from src import logger
-import time
-from tqdm import tqdm
 import pandas as pd
 import numpy as np
+import time
+from tqdm import tqdm
 
 
 def temporal_disaggregation_households_slp(
@@ -67,9 +69,7 @@ def temporal_disaggregation_households_slp(
         assert slp_bl.index.equals(idx), "The time-indizes are not aligned"
         # Create 15min-index'ed DataFrames for current state
         cols = sv_lk.drop(columns=["SLP"]).columns
-        sv_lk_ts = (
-            pd.DataFrame(index=idx, columns=cols).fillna(0.0).infer_objects(copy=False)
-        )
+        sv_lk_ts = pd.DataFrame(index=idx, columns=cols, dtype=float)
 
         # Calculate load profile for each LK
         slp = "H0"
@@ -86,7 +86,7 @@ def temporal_disaggregation_households_slp(
         # Concatenate the state-wise results
         DF = pd.concat([DF, sv_lk_ts], axis=1).dropna()
         elapsed = time.time() - state_start
-        logger.info("State {} completed in {:.2f}s".format(state, elapsed))
+        # logger.info("State {} completed in {:.2f}s".format(state, elapsed))
 
     # Plausibility check:
     msg = (
