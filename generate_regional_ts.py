@@ -43,7 +43,7 @@ def main(year):
         year=year,
         force_preprocessing=True,
         float_precision=10,
-        save_cache=False,
+        save_to_cache=False,
     )
     print("Disaggregation of Industry completed.")
 
@@ -54,7 +54,7 @@ def main(year):
         year=year,
         force_preprocessing=True,
         float_precision=10,
-        save_cache=False,
+        save_to_cache=False,
     )
     print("Disaggregation of CTS completed.\n")
 
