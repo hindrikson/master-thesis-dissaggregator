@@ -1219,8 +1219,10 @@ def gas_slp_weekday_params(state: int, year: int):
                 ['MO', 'DI', 'MI', 'DO', 'FR', 'SA', 'SO']: containing true if the day of the year is that day
                 ['FW_<slp_name>']: SLP values see  dict gas_load_profile_parameters_dict()
     """
+    tz = get_timezone("DE")
+    idx = make_year_index(year, "d", tz)
 
-    idx = pd.date_range(start=str(year), end=str(year + 1), freq="d")[:-1]
+    # idx = pd.date_range(start=str(year), end=str(year + 1), freq="d")[:-1]
     df = (
         pd.DataFrame(data={"Date": idx})
         .assign(Day=lambda x: pd.DatetimeIndex(x["Date"]).date)
@@ -1262,6 +1264,8 @@ def gas_slp_weekday_params(state: int, year: int):
         df["FW_" + str(slp)] = 0.0
         for wd in ["MO", "DI", "MI", "DO", "FR", "SA", "SO"]:
             df.loc[df[wd], ["FW_" + str(slp)]] = par.loc[slp, wd]
+
+    df = df.tz_convert("UTC")
 
     return_df = df.drop(columns=["DayOfYear"]).set_index("Day")
 
