@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=8
 #SBATCH --time=100:00:00
 #SBATCH --gres=gpu:0
 #SBATCH --mem=128G
@@ -16,7 +16,7 @@ conda activate new_disag
 cd /mnt/home/rmiranda/all/repos/master-thesis-dissaggregator/
 
 
-srun python3 generate_regional_ts.py
+srun python3 -u generate_regional_ts.py
 
 
 echo "Time Series Generation Completed"
