@@ -117,18 +117,19 @@ def main(year: int, formats: list):
                 print("Error saving files:", e)
             continue
 
-        try:
-            print("Saving pickle files...")
-            df_cts.to_pickle(cts_path)
-            print("CTS file saved successfully.")
-            df_industry.to_pickle(industry_path)
-            print("Industry file saved successfully.")
-            df_households.to_pickle(household_path)
-            print("Household file saved successfully.")
-            print("Pickle files saved successfully.\n")
-        except Exception as e:
-            print("Error saving files:", e)
-            raise e
+        if format == "pkl":
+            try:
+                print("Saving pickle files...")
+                df_cts.to_pickle(cts_path)
+                print("CTS file saved successfully.")
+                df_industry.to_pickle(industry_path)
+                print("Industry file saved successfully.")
+                df_households.to_pickle(household_path)
+                print("Household file saved successfully.")
+                print("Pickle files saved successfully.\n")
+            except Exception as e:
+                print("Error saving files:", e)
+                raise e
 
     end = time()
     # print time in minutes
