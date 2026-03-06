@@ -62,7 +62,14 @@ def disaggregate_temporal_industry(
     slp = get_shift_load_profiles_by_year(
         year=year, low=low, force_preprocessing=force_preprocessing
     )
-    slp.index = pd.to_datetime(slp.index)
+
+    # slp.index = pd.to_datetime(slp.index)
+
+    # Verify that each column sums to 1
+    for col in slp.columns:
+        col_sum = slp[col].sum()
+        if not np.isclose(col_sum, 1.0, atol=1e-6):
+            logger.warning(f"Column {col} sum is {col_sum}, expected 1.0")
 
     # 3. Perform Disaggregation (Integrated Logic)
     state_mapping = federal_state_dict()
@@ -103,7 +110,12 @@ def disaggregate_temporal_industry(
     for (
         regional_id,
         industry_sector_str,
-    ), annual_consumption in consumption_stacked.items():
+    ), annual_consumption in tqdm(
+        consumption_stacked.items(),
+        desc="Disaggregating consumption",
+        unit="region",
+        total=len(consumption_stacked),
+    ):
         # Check specifically for NaN values and raise an error (Processing continues if annual_consumption is 0.0 or positive)
         if pd.isna(annual_consumption):
             error_count += 1  # Increment count before raising
@@ -119,6 +131,11 @@ def disaggregate_temporal_industry(
             state_abbr = state_mapping[state_num]
             industry_sector_int = int(industry_sector_str)
             load_profile_name = profile_mapping[industry_sector_int]
+
+            # logger.info(
+            # f"Processing regional_id: {regional_id}, industry_sector: {industry_sector_str} "
+            # f"(state: {state_abbr}, load_profile: {load_profile_name}, ")
+
             profile_series = slp[(state_abbr, load_profile_name)]
 
             # Multiply profile by consumption (if 0.0, result is Series of zeros)
@@ -508,7 +525,7 @@ def disaggregate_temporal_power_CTS(
         DF = pd.concat([DF, sv_lk_wz_ts], axis=1)
         DF.columns = pd.MultiIndex.from_tuples(DF.columns, names=["LK", "WZ"])
         elapsed = time.time() - state_start
-        logger.info("State {} completed in {:.2f}s".format(state, elapsed))
+        # logger.info("State {} completed in {:.2f}s".format(state, elapsed))
 
     # Plausibility check:
     msg = (
