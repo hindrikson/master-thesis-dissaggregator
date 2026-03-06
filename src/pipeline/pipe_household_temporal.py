@@ -3,6 +3,8 @@ from src.data_processing.households import adjust_by_income  # noqa
 from src.data_processing.temporal import get_CTS_power_slp  # noqa
 from src.configs.mappings import federal_state_dict
 from src import logger
+import time
+from tqdm import tqdm
 import pandas as pd
 import numpy as np
 
@@ -45,17 +47,21 @@ def temporal_disaggregation_households_slp(
     total_sum = sv_yearly.value.sum()
 
     # Create empty 15min-index'ed DataFrame for target year
-    idx = pd.date_range(start=str(year), end=str(year + 1), freq="15min")[:-1]
+
+    idx = make_year_index(year, "15min", "UTC")
+
+    # idx = pd.date_range(start=str(year), end=str(year + 1), freq="15min")[:-1]
     DF = pd.DataFrame(index=idx)
 
-    for state in federal_state_dict().values():
-        logger.info("Working on state: {}.".format(state))
+    for state in tqdm(
+        federal_state_dict().values(), desc="Disaggregating by SLP", unit="state"
+    ):
+        state_start = time.time()
         sv_lk = (
             sv_yearly.loc[lambda x: x["BL"] == state]
             .drop(columns=["BL"])
             .assign(SLP=lambda x: "H0")
         )
-        logger.info("... creating state-specific load-profiles")
         slp_bl = get_CTS_power_slp(state, year=year)
         # Plausibility check:
         assert slp_bl.index.equals(idx), "The time-indizes are not aligned"
@@ -65,7 +71,6 @@ def temporal_disaggregation_households_slp(
             pd.DataFrame(index=idx, columns=cols).fillna(0.0).infer_objects(copy=False)
         )
 
-        logger.info("... assigning load-profiles")
         # Calculate load profile for each LK
         slp = "H0"
         lp_lk = pd.DataFrame(
@@ -80,6 +85,8 @@ def temporal_disaggregation_households_slp(
 
         # Concatenate the state-wise results
         DF = pd.concat([DF, sv_lk_ts], axis=1).dropna()
+        elapsed = time.time() - state_start
+        logger.info("State {} completed in {:.2f}s".format(state, elapsed))
 
     # Plausibility check:
     msg = (
@@ -96,8 +103,5 @@ def temporal_disaggregation_households_slp(
         # Remove the old Eisenach column
         DF = DF.drop(columns=["16056"])
         print("Merged Eisenach (16056) into Wartburgkreis (16063)")
-
-    # Convert columns to integer type to match with industry and cts datasets
-    # DF.columns = DF.columns.astype(int)
 
     return DF
