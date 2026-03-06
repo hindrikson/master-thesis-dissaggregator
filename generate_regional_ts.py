@@ -138,7 +138,7 @@ def main(year: int, formats: list):
 
 if __name__ == "__main__":
     years = [2022, 2023, 2024]
-    formats = ["pkl"]
+    formats = ["pkl", "csv"]
     for year in years:
         main(year, formats)
         print("Year {} completed.\n".format(year))
