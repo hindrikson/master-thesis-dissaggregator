@@ -113,7 +113,7 @@ def main(year):
                 print("Industry file saved successfully.")
                 df_households.to_csv(household_path)
                 print("Household file saved successfully.")
-                print("Files saved successfully.")
+                print("CSV files saved successfully.\n")
             except Exception as e:
                 print("Error saving files:", e)
             continue
@@ -126,7 +126,7 @@ def main(year):
             print("Industry file saved successfully.")
             df_households.to_pickle(household_path)
             print("Household file saved successfully.")
-            print("Files saved successfully.")
+            print("Pickle files saved successfully.\n")
         except Exception as e:
             print("Error saving files:", e)
 
@@ -139,3 +139,4 @@ if __name__ == "__main__":
     years = [2022, 2023, 2024]
     for year in years:
         main(year)
+        print("Year {} completed.\n".format(year))
