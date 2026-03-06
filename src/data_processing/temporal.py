@@ -1,8 +1,10 @@
 import datetime
+import time
 from datetime import timedelta
 
 import holidays
 import pandas as pd
+from tqdm import tqdm
 
 from src import logger
 from src.configs.data import *
@@ -435,13 +437,16 @@ def disaggregate_temporal_power_CTS(
     total_sum = sv_yearly.drop("BL", axis=1).sum().sum()
 
     # Create empty 15min-index'ed DataFrame for target year
-    # tz = get_timezone("DE")  # or alpha2code mapping
-    # idx = make_year_index(year, "15min", tz)
-    idx = pd.date_range(start=str(year), end=str(year + 1), freq="15T")[:-1]
+
+    idx = make_year_index(year, "15min", "UTC")
+
+    # idx = pd.date_range(start=str(year), end=str(year + 1), freq="15T")[:-1]
     DF = pd.DataFrame(index=idx)
 
-    for state in federal_state_dict().values():
-        logger.info("Working on state: {}.".format(state))
+    for state in tqdm(
+        federal_state_dict().values(), desc="Processing states", unit="state"
+    ):
+        state_start = time.time()
         # create a column "SLP" where every WZ gets assigned its load profile based on the load_profiles_cts_power() dict
         sv_lk_wz = (
             sv_yearly.loc[lambda x: x["BL"] == state]
@@ -450,7 +455,6 @@ def disaggregate_temporal_power_CTS(
             .assign(SLP=lambda x: [load_profiles_cts_power()[int(i)] for i in x.index])
         )
 
-        logger.info("... creating state-specific load-profiles")
         slp_bl = get_CTS_power_slp(state, year=year)
         # Plausibility check:
         assert slp_bl.index.equals(idx), "The time-indizes are not aligned"
@@ -458,7 +462,6 @@ def disaggregate_temporal_power_CTS(
 
         sv_lk_wz_ts = pd.DataFrame(index=idx)
 
-        logger.info("... assigning load-profiles to WZs")
         for slp in sv_lk_wz["SLP"].unique():
             sv_lk = (
                 sv_lk_wz.loc[sv_lk_wz["SLP"] == slp]
@@ -504,6 +507,8 @@ def disaggregate_temporal_power_CTS(
 
         DF = pd.concat([DF, sv_lk_wz_ts], axis=1)
         DF.columns = pd.MultiIndex.from_tuples(DF.columns, names=["LK", "WZ"])
+        elapsed = time.time() - state_start
+        logger.info("State {} completed in {:.2f}s".format(state, elapsed))
 
     # Plausibility check:
     msg = (
