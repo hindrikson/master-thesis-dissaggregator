@@ -28,7 +28,7 @@ def save_dirs(result_path):
     return ind_path, cts_path, hh_path
 
 
-def main(year):
+def main(year: int, formats: list):
     start = time()
     print("\nCreating regional time series for year:", year)
 
@@ -92,7 +92,6 @@ def main(year):
         print(sorted(only_in_households))
         raise ValueError("Regions in df_households and df_industry do not match!")
 
-    formats = ["pkl", "csv"]
     ind_dir, cts_dir, hh_dir = save_dirs(RESULTS_PATH)
 
     for format in formats:
@@ -129,6 +128,7 @@ def main(year):
             print("Pickle files saved successfully.\n")
         except Exception as e:
             print("Error saving files:", e)
+            raise e
 
     end = time()
     # print time in minutes
@@ -137,6 +137,7 @@ def main(year):
 
 if __name__ == "__main__":
     years = [2022, 2023, 2024]
+    formats = ["pkl"]
     for year in years:
-        main(year)
+        main(year, formats)
         print("Year {} completed.\n".format(year))
