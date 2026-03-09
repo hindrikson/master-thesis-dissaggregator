@@ -100,7 +100,7 @@ def main(year: int, formats: list):
             ind_dir + f"/temporal_disaggregation_power_industry_{year}.{format}"
         )
         household_path = (
-            hh_dir + f"/temporal_disaggregation_households_power_slp_{year}.{format}"
+            hh_dir + f"/temporal_disaggregation_power_households_{year}.{format}"
         )
 
         if format == "csv":
