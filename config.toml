@@ -1,0 +1,3 @@
+[generate_timeseries]
+results_path = "/mnt/data/oe215/rhindrikson/el_load/demandregio_disaggregation/timezone_for_all"
+

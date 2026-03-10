@@ -82,7 +82,7 @@ def main(year):
         household_path = (
             dir_path
             + "/households"
-            + f"/temporal_disaggregation_households_power_slp_{year}.{format}"
+            + f"/temporal_disaggregation_power_households_{year}.{format}"
         )
 
         if format == "csv":
