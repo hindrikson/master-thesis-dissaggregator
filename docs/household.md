@@ -21,6 +21,22 @@ This table returns only one row with one value, which is the total consumption o
 Is there a table that returns the total electricity consumption of private households in Germany for years after 2018?
 
 ## Only Bottom-Up available
+### New implementation
+- *temporal_disaggregation_households_slp(by="households", year=year)*
+    - *households_power_consumption*
+        - *get_power_consumption_by_HH_size*: Fetches table 55 from opendata *"Stromverbrauch der Haushalte nach Haushaltsgroesse, 1990..2060"*
+        - Filters for scenario id 2 *moderate births, life expectancy and net migration (G2L2W2)*
+        - returns table:
+           | id_region | hh_size 1      | hh_size 2      | hh_size 3      | hh_size 4      |
+            |-----------|----------------|----------------|----------------|----------------|
+            | 01001     | 31,378.059334  | 45,722.178395  | 53,094.854740  | 13,194.436871  |
+            | 01002     | 111,606.250427 | 106,507.679767 | 145,368.475915 | 35,587.709564  |
+            | 01003     | 99,000.381398  | 98,056.498155  | 141,748.970875 | 26,939.146311  |
+    - Sum values for all household types to get the total consumption per region. 
+    - Multiply for the H0 profile to get the temporal disaggregation
+**Missing**: weight by income ( in the old disaggregator there was an option for weighting the values by the relative income of the region.
+
+### Original implementation
 So far the only option available is using disagg_household_power(by="households"), which uses the Bottom-Up approach.
 
 In this approach first the disaggregator fetches to total of energy consumption per household, in the whole germany.
