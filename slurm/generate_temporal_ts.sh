@@ -7,8 +7,8 @@
 #SBATCH --mem=128G
 #SBATCH -o /mnt/home/rmiranda/all/repos/master-thesis-dissaggregator/slurm/logs/%j-%x.log
 #SBATCH --job-name=disag
-#SBATCH --nodelist=gpu3.omnia.cluster
-#SBATCH --partition=h100
+#SBATCH --nodelist=gpu4.omnia.cluster
+#SBATCH --partition=oe215
  
 eval "$(conda shell.bash hook)"
 conda activate new_disag

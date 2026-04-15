@@ -6,7 +6,7 @@ For the consumption data, the *get_consumption_data()* is used. This function ha
 to load and process data from various sources. We break down this function below:
 
 - get_consumption_data_historical_and_future()
-    * get_ugr_data_ranges()
+    * get_ugr_data_ranges() (Umweltökonomische Gesamtrechnungen)
         - Loads the GENESIS file (data/raw/dimensionless/ugr_2000to2020.csv)
           with the official national-level starting point for 48 sector ranges. This data is
           retrieved from "Verwendung von Energie: Deutschland, Jahre, Produktionsbereiche, Energieträger" under the link below:
@@ -35,7 +35,7 @@ to load and process data from various sources. We break down this function below
     * get_total_gas_industry_self_consuption()
         - skipping...
     * load_decomposition_factors_power()
-        - The power consumption in each wz is distributed according to share 
+        - The power consumption in each wz is distributed according to the share 
           of certain applications within the industry (lighting, heating, IT equipment, air conditioning, etc.)
         - This decomposition are loaded from data/raw/dimensionless/decomposition_factors.xlsx and sheet "Endenergieverbrauch Strom", and is base on literature from AGEB (Arbeitsgemeinschaft Energiebilanzen) and VDI (Verein Deutscher Ingenieure).
           **Sample values:**

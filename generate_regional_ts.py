@@ -10,7 +10,7 @@ pd.options.display.max_columns = 50
 from src.pipeline.pipe_household_temporal import temporal_disaggregation_households_slp
 from src.pipeline.pipe_temporal import disaggregate_temporal
 
-with open("config.toml", "rb") as f:
+with open("../config.toml", "rb") as f:
     config = tomllib.load(f)
 
 RESULTS_PATH = config["generate_timeseries"]["results_path"]
@@ -137,7 +137,7 @@ def main(year: int, formats: list):
 
 
 if __name__ == "__main__":
-    years = [2022, 2023, 2024]
+    years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
     formats = ["pkl", "csv"]
     for year in years:
         main(year, formats)
