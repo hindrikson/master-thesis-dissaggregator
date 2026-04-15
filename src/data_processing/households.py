@@ -36,15 +36,18 @@ def households_power_consumption(
     Returns:
         DataFrame containing energy consumption data by household size in MWh.
     """
-    if 2018 > year > 2060:
-        raise ValueError("Year must be between 2018 and 2060")
+    if not 1990 < year < 2060:
+        raise ValueError("Year must be between 1990 and 2060")
 
     df = get_power_consumption_by_HH_size(year=year, use_cache=use_cache)
 
     df["id_region"] = df["id_region"].apply(fix_region_id)
 
     # filter df to only include rows where internal_id[1] == scenario_id
-    df = df[df["internal_id[1]"] == scenario_id]
+
+    if year > 2018:
+        # For years before 2018, there is only one scenario, so we can skip this filtering step
+        df = df[df["internal_id[1]"] == scenario_id]
 
     # exclude rows where internal_id[0] is 1 (1 is the sum over all household sizes)
     df = df[df["internal_id[0]"] != 1]
@@ -65,5 +68,7 @@ def households_power_consumption(
             "Income per capita is only available up to 2016. Adjusting households' power consumption by income per capita."
         )
         df = adjust_by_income(df, year)
+
+    assert not df.empty, "DataFrame is empty"
 
     return df
