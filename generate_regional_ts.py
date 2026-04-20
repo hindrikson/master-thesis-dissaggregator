@@ -16,7 +16,15 @@ with open("../config.toml", "rb") as f:
 RESULTS_PATH = config["generate_timeseries"]["results_path"]
 
 
-def save_dirs(result_path):
+def save_dirs(result_path, self_generation):
+    if self_generation:
+        result_path = os.path.join(result_path, "with_self_generation")
+    else:
+        result_path = os.path.join(result_path, "without_self_generation")
+
+    # create result path if it doesn't exist
+    os.makedirs(result_path, exist_ok=True)
+
     # Create directories if they don't exist
     os.makedirs(os.path.join(result_path, "industry"), exist_ok=True)
     os.makedirs(os.path.join(result_path, "cts"), exist_ok=True)
@@ -28,7 +36,7 @@ def save_dirs(result_path):
     return ind_path, cts_path, hh_path
 
 
-def main(year: int, formats: list):
+def main(year: int, formats: list, self_generation: bool = True):
     start = time()
     print("\nCreating regional time series for year:", year)
 
@@ -44,6 +52,7 @@ def main(year: int, formats: list):
         force_preprocessing=True,
         float_precision=10,
         save_to_cache=False,
+        self_generation=self_generation,
     )
     print("Disaggregation of Industry completed.")
 
@@ -55,6 +64,7 @@ def main(year: int, formats: list):
         force_preprocessing=True,
         float_precision=10,
         save_to_cache=False,
+        self_generation=self_generation,
     )
     print("Disaggregation of CTS completed.\n")
 
@@ -92,7 +102,7 @@ def main(year: int, formats: list):
         print(sorted(only_in_households))
         raise ValueError("Regions in df_households and df_industry do not match!")
 
-    ind_dir, cts_dir, hh_dir = save_dirs(RESULTS_PATH)
+    ind_dir, cts_dir, hh_dir = save_dirs(RESULTS_PATH, self_generation)
 
     for format in formats:
         cts_path = cts_dir + f"/temporal_disaggregation_power_cts_{year}.{format}"
@@ -137,8 +147,10 @@ def main(year: int, formats: list):
 
 
 if __name__ == "__main__":
-    years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
-    formats = ["pkl", "csv"]
-    for year in years:
-        main(year, formats)
+    YEARS = list(range(2010, 2025))
+    FORMATS = ["pkl", "csv"]
+    SELF_GENERATION = False
+
+    for year in YEARS:
+        main(year, FORMATS, self_generation=SELF_GENERATION)
         print("Year {} completed.\n".format(year))

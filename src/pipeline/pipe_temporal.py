@@ -11,6 +11,7 @@ def disaggregate_temporal(
     force_preprocessing: bool = False,
     float_precision: int = 10,
     save_to_cache=True,
+    self_generation: bool = True,
 ) -> pd.DataFrame:
     """
     Disaggregate the temporal data for a given energy carrier and sector.
@@ -29,6 +30,7 @@ def disaggregate_temporal(
             index: hours/15min of the given year
         e.g. for cts gas: 8760 rows x 23200 (=400*58) columns = 2.032.3200  values -> 3.59GB with full float precision 18
     """
+    # WARNING: self_generation only implemented for power and industry
 
     # 0. validate the input
     if sector not in ["cts", "industry"]:
@@ -58,6 +60,7 @@ def disaggregate_temporal(
         energy_carrier=energy_carrier,
         year=year,
         force_preprocessing=force_preprocessing,
+        self_generation=self_generation,
     )
 
     # 2. disaggregate the consumption data based on the energy carrier and sector

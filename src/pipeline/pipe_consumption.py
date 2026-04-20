@@ -11,7 +11,10 @@ from src.data_processing.employees import (
 
 # main function with cache: Consumption data for a specific year and energy carrier
 def get_consumption_data(
-    year: int, energy_carrier: str, force_preprocessing: bool = False
+    year: int,
+    energy_carrier: str,
+    force_preprocessing: bool = False,
+    self_generation: bool = True,
 ) -> pd.DataFrame:
     """
     Get consumption data for a specific year.
@@ -37,7 +40,7 @@ def get_consumption_data(
 
     # 2. get the consumption data: historical or projected in the future
     consumption_data_power, consumption_data_gas, consumption_data_petrol = (
-        get_consumption_data_historical_and_future(year)
+        get_consumption_data_historical_and_future(year, self_generation)
     )
 
     # 3. return the correct consumption data for the energy carrier
@@ -78,6 +81,7 @@ def get_consumption_data_per_indsutry_sector_energy_carrier(
     cts_or_industry: str,
     energy_carrier: str,
     force_preprocessing: bool = True,
+    self_generation: bool = True,
 ) -> pd.DataFrame:
     """
     Get consumption data for a specific year and filter it per cts or industry
@@ -102,6 +106,7 @@ def get_consumption_data_per_indsutry_sector_energy_carrier(
         year=year,
         energy_carrier=energy_carrier,
         force_preprocessing=force_preprocessing,
+        self_generation=self_generation,
     )
 
     # 3. filter the consumption data
@@ -113,7 +118,9 @@ def get_consumption_data_per_indsutry_sector_energy_carrier(
 
 
 # get all energy carriers and sectors for a specific year
-def get_consumption_data_historical_and_future(year: int) -> pd.DataFrame:
+def get_consumption_data_historical_and_future(
+    year: int, self_generation: bool = True
+) -> pd.DataFrame:
     """
     Get historical and projected consumption data (2000-2050) for a specific year: Consumption per industry_sector [88] and regional_ids [400]
 
@@ -180,6 +187,7 @@ def get_consumption_data_historical_and_future(year: int) -> pd.DataFrame:
     # I calculate the factor: How much of the total power self generation is in each WZ
     # and assume that I can use that factor also for gas
     # self gen is only missing for gas, we get the total gas self consumption from JEVI. For power selfgen is already included
+
     total_gas_self_consuption = get_total_gas_industry_self_consuption(year)
     decomposition_factors_power = load_decomposition_factors_power()
     consumption_data, factor_power_selfgen, factor_gas_no_selfgen = (
@@ -193,6 +201,8 @@ def get_consumption_data_historical_and_future(year: int) -> pd.DataFrame:
 
     # 6. fix the industry consumption with iterative approach and dissaggregate the consumption to regional_ids
     # 6.1 get regional energy consumption from JEVI
+    # WARNING: If i take the self-generation out from the consumption, it could
+    # cause a mismatch. Maybe the total from JEVI include the self generation.
     regional_energy_consumption_jevi = get_regional_energy_consumption(year)
 
     # 6.2 calculate the regional energy consumption iteratively
@@ -202,6 +212,7 @@ def get_consumption_data_historical_and_future(year: int) -> pd.DataFrame:
             sector_energy_consumption_ugr=consumption_data,
             regional_energy_consumption_jevi=regional_energy_consumption_jevi,
             employees_by_industry_sector_and_regional_ids=employees,
+            self_generation=self_generation,
         )
     )
 

@@ -36,14 +36,14 @@ to load and process data from various sources. We break down this function below
         - skipping...
     * load_decomposition_factors_power()
         - The power consumption in each wz is distributed according to the share 
-          of certain applications within the industry (lighting, heating, IT equipment, air conditioning, etc.)
+          of certain applications within the industry (lighting, heating, self-generation, IT equipment, air conditioning, etc.). Industry 35 has only NAN values. Self-generation is set to 0 and all the other values to 1.
         - This decomposition are loaded from data/raw/dimensionless/decomposition_factors.xlsx and sheet "Endenergieverbrauch Strom", and is base on literature from AGEB (Arbeitsgemeinschaft Energiebilanzen) and VDI (Verein Deutscher Ingenieure).
           **Sample values:**
             | WZ | Beleuchtung | IKT      | Klimakälte | Prozesskälte | Mechanische Energie |
             |----|-------------|----------|------------|--------------|---------------------|
             | 1  | 0.255814    | 0.046512 | 0.093023   | 0.023256     | 0.418605            |
     * calculate_self_generation()
-        - returns a dataframe with an extra column for self-generation (power_incl_selfgen MWh and gas_no_selfgen MWh).
+        - returns a dataframe with an extra column for **self-generation** (power_incl_selfgen MWh and gas_no_selfgen MWh).
           The self generation is based on decomposition_factors dataframe from the function above,
           which includes the share of "electricity_self_generation"
     * get_regional_energy_consumption()

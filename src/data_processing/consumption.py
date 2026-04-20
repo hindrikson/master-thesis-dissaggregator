@@ -393,6 +393,10 @@ def calculate_self_generation(
         df["power_incl_selfgen[MWh]"] * selfgen_factor_power
     )
 
+    df["power_no_selfgen[MWh]"] = (
+        df["power_incl_selfgen[MWh]"] - df["power_self_generation[MWh]"]
+    )
+
     # Share of self-generation per industry
     df["factor_selfgen_of_total_power"] = (
         df["power_self_generation[MWh]"] / df["power_self_generation[MWh]"].sum()
@@ -631,6 +635,7 @@ def calculate_iteratively_industry_regional_consumption(
     sector_energy_consumption_ugr,
     regional_energy_consumption_jevi,
     employees_by_industry_sector_and_regional_ids,
+    self_generation=True,
 ):
     """
     Resolves the consumption per industry_sector (from UGR) to regional_ids (with the help of JEVI) in an iterative approach.
@@ -695,18 +700,29 @@ def calculate_iteratively_industry_regional_consumption(
     bze_je_lk_wz.columns = bze_je_lk_wz.columns.astype(int)
 
     # UGR data spez
-    spez_gv = pd.DataFrame(
-        sector_energy_consumption_ugr["gas_incl_selfgen[MWh]"]
-        / total_employees_per_sector
-    )
+    if self_generation:
+        spez_gv = pd.DataFrame(
+            sector_energy_consumption_ugr["gas_incl_selfgen[MWh]"]
+            / total_employees_per_sector
+        )
+        spez_sv = pd.DataFrame(
+            sector_energy_consumption_ugr["power_incl_selfgen[MWh]"]
+            / total_employees_per_sector
+        )
+    else:
+        spez_gv = pd.DataFrame(
+            sector_energy_consumption_ugr["gas_no_selfgen[MWh]"]
+            / total_employees_per_sector
+        )
+        spez_sv = pd.DataFrame(
+            sector_energy_consumption_ugr["power_no_selfgen[MWh]"]
+            / total_employees_per_sector
+        )
+
     spez_gv.columns = spez_gv.columns.astype(int)
     spez_gv.rename(columns={0: "spez. GV"}, inplace=True)
     spez_gv = spez_gv.sort_index().sort_index(axis=1)
 
-    spez_sv = pd.DataFrame(
-        sector_energy_consumption_ugr["power_incl_selfgen[MWh]"]
-        / total_employees_per_sector
-    )
     spez_sv.columns = spez_sv.columns.astype(int)
     spez_sv.rename(columns={0: "spez. SV"}, inplace=True)
     spez_sv = spez_sv.sort_index().sort_index(axis=1)

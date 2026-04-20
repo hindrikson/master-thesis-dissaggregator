@@ -1,5 +1,8 @@
 ## This repository is a fork of https://github.com/florian-baumann1k5/master-thesis-dissaggregator
 
+# TODOs:
+- [ ] Option for excluding self generation only available for **industry and power**. Gas and petrol needs to be inspected and adapted.
+
 # DemandRegio Disaggregator
 
 The DamendRegio project aims to disaggregate the final energy consumption of the sectors:
