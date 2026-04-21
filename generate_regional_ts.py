@@ -147,7 +147,7 @@ def main(year: int, formats: list, self_generation: bool = True):
 
 
 if __name__ == "__main__":
-    YEARS = list(range(2010, 2025))
+    YEARS = list(range(2018, 2025))
     FORMATS = ["pkl", "csv"]
     SELF_GENERATION = False
 

@@ -9,6 +9,8 @@ data/output/**/*.csv
 !data/output/**/
 zzzz/*
 
+logs/
+
 
 # secret varialbles
 config.toml
