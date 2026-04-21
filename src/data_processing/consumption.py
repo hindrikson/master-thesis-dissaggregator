@@ -735,10 +735,18 @@ def calculate_iteratively_industry_regional_consumption(
     spez_petro = spez_petro.sort_index().sort_index(axis=1)
 
     # UGR data total
+    # After
+    if self_generation:
+        gv_col = "gas_incl_selfgen[MWh]"
+        sv_col = "power_incl_selfgen[MWh]"
+    else:
+        gv_col = "gas_no_selfgen[MWh]"
+        sv_col = "power_no_selfgen[MWh]"
+
     df_ec = pd.DataFrame(
         {
-            "GV_MWh": sector_energy_consumption_ugr["gas_incl_selfgen[MWh]"],
-            "SV_MWh": sector_energy_consumption_ugr["power_incl_selfgen[MWh]"],
+            "GV_MWh": sector_energy_consumption_ugr[gv_col],
+            "SV_MWh": sector_energy_consumption_ugr[sv_col],
             "Petro_MWh": sector_energy_consumption_ugr["petrol[MWh]"],
         }
     )
@@ -1176,7 +1184,7 @@ def calculate_iteratively_industry_regional_consumption(
 
     # validation: check if the total consumption is equal to the sum of the sector energy consumption +/- 1%
     if not np.isclose(
-        sector_energy_consumption_ugr["gas_incl_selfgen[MWh]"].sum(),
+        sector_energy_consumption_ugr[gv_col].sum(),
         total_gas_consumption.sum().sum(),
         rtol=0.01,
     ):
@@ -1184,7 +1192,7 @@ def calculate_iteratively_industry_regional_consumption(
             "total_gas_consumption is not equal to sector_energy_consumption_ugr['gas_incl_selfgen[MWh]']"
         )
     if not np.isclose(
-        sector_energy_consumption_ugr["power_incl_selfgen[MWh]"].sum(),
+        sector_energy_consumption_ugr[sv_col].sum(),
         total_power_consumption.sum().sum(),
         rtol=0.01,
     ):
