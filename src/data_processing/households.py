@@ -45,8 +45,9 @@ def households_power_consumption(
 
     # filter df to only include rows where internal_id[1] == scenario_id
 
-    if year > 2018:
-        # For years before 2018, there is only one scenario, so we can skip this filtering step
+    if year > 2017:
+        # For years after 2017, there are different values for interval_id[1] for different scenarios.
+        # Filter for the scenario_id
         df = df[df["internal_id[1]"] == scenario_id]
 
     # exclude rows where internal_id[0] is 1 (1 is the sum over all household sizes)
