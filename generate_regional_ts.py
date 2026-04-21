@@ -22,6 +22,8 @@ def save_dirs(result_path, self_generation):
     else:
         result_path = os.path.join(result_path, "without_self_generation")
 
+    print("\nSaving results to:", result_path)
+
     # create result path if it doesn't exist
     os.makedirs(result_path, exist_ok=True)
 
@@ -39,10 +41,10 @@ def save_dirs(result_path, self_generation):
 def main(year: int, formats: list, self_generation: bool = True):
     start = time()
     print("\nCreating regional time series for year:", year)
+    print("With Self-generation." if self_generation else "No Self-generation.")
 
     print("\nDisaggregating households...")
     df_households = temporal_disaggregation_households_slp(by="households", year=year)
-    print("Disaggregation of Households completed.")
 
     print("\nDisaggregating industry...")
     df_industry = disaggregate_temporal(
@@ -54,7 +56,6 @@ def main(year: int, formats: list, self_generation: bool = True):
         save_to_cache=False,
         self_generation=self_generation,
     )
-    print("Disaggregation of Industry completed.")
 
     print("\nDisaggregating cts...")
     df_cts = disaggregate_temporal(
@@ -66,7 +67,8 @@ def main(year: int, formats: list, self_generation: bool = True):
         save_to_cache=False,
         self_generation=self_generation,
     )
-    print("Disaggregation of CTS completed.\n")
+
+    print("All disaggregations are completed.\n")
 
     # Extract regions from df_industry (first level of column MultiIndex)
     industry_regions = df_industry.columns.get_level_values(0).unique()
@@ -147,7 +149,7 @@ def main(year: int, formats: list, self_generation: bool = True):
 
 
 if __name__ == "__main__":
-    YEARS = list(range(2018, 2025))
+    YEARS = list(range(2010, 2025))
     FORMATS = ["pkl", "csv"]
     SELF_GENERATION = False
 
