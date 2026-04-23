@@ -143,16 +143,33 @@ def main(year: int, formats: list, self_generation: bool = True):
                 print("Error saving files:", e)
                 raise e
 
+        if format == "h5":
+            try:
+                print("Saving HDF5 files...")
+                df_cts.to_hdf(cts_path, key="data", mode="w", format="fixed")
+                print("CTS file saved successfully.")
+                df_industry.to_hdf(industry_path, key="data", mode="w", format="fixed")
+                print("Industry file saved successfully.")
+                df_households.to_hdf(
+                    household_path, key="data", mode="w", format="fixed"
+                )
+                print("Household file saved successfully.")
+                print("HDF5 files saved successfully.\n")
+            except Exception as e:
+                print("Error saving files:", e)
+                raise e
+
     end = time()
     # print time in minutes
     print("Time taken: {:.2f} minutes".format((end - start) / 60))
 
 
 if __name__ == "__main__":
-    YEARS = list(range(2010, 2025))
-    FORMATS = ["pkl", "csv"]
-    SELF_GENERATION = False
+    YEARS = list(range(2010, 2026))
+    FORMATS = ["h5"]
+    SELF_GENERATION = [False, True]
 
     for year in YEARS:
-        main(year, FORMATS, self_generation=SELF_GENERATION)
-        print("Year {} completed.\n".format(year))
+        for self_generation in SELF_GENERATION:
+            main(year, FORMATS, self_generation=self_generation)
+            print("Year {} completed.\n".format(year))
