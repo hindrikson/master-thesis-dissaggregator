@@ -20,7 +20,7 @@ def save_dirs(result_path, self_generation):
     if self_generation:
         result_path = os.path.join(result_path, "with_self_generation")
     else:
-        result_path = os.path.join(result_path, "without_self_generation")
+        result_path = os.path.join(result_path, "no_self_generation")
 
     print("\nSaving results to:", result_path)
 
